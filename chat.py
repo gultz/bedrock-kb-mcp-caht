@@ -14,6 +14,7 @@ from botocore.config import Config
 # from strands.agent.conversationmanager import SlidingWindowConversationManager
 from strands.tools.mcp import MCPClient
 from mcp import stdio_client, StdioServerParameters
+from strands.agent.conversation_manager import SlidingWindowConversationManager
 
 logging.basicConfig(
     level=logging.INFO,  # Defaulx t to INFO level
@@ -30,7 +31,6 @@ logger = logging.getLogger("chat")
 # model_id = "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
 # models = info.get_model_info(model_name)
 # reasoning_mode = 'Disable'
-
 
 
 model = BedrockModel(
@@ -51,9 +51,9 @@ model = BedrockModel(
     }
 )
 
-# conversation_manager = SlidingWindowConversationManager(
-#     window_size=10,  
-# )
+conversation_manager = SlidingWindowConversationManager(
+    window_size=10,  
+)
 
 
 chembl_mcp_client = MCPClient(lambda: stdio_client(
