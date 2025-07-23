@@ -3,7 +3,7 @@ import os, sys, boto3
 #profile_name = 'jw'
 
 session = boto3.Session()
-region_name = session.region_name | "us-west-2"
+region_name = session.region_name or "us-west-2"
 ssm = session.client('ssm', region_name=region_name)
 bedrock_agent_runtime_client = session.client("bedrock-agent-runtime", region_name="us-west-2")
 
