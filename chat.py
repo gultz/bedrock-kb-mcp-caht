@@ -67,8 +67,7 @@ def run_chembl_agent(query: str) -> str:
     """
     try:
         with chembl_mcp_client as client:
-            all_tools = client.list_tools_sync()
-            tools = [client.list_tools_sync()]
+            tools = client.list_tools_sync()
             system_prompt = """
         You are a specialized ChEMBL research agent. Your role is to:
         1. Extract either the compound name or target name from the query
