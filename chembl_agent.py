@@ -64,7 +64,7 @@ def run_chembl_agent(query: str) -> str:
         """
             agent = Agent(
                 tools=tools,
-                system_prompt=system_prompt
+                system_prompt=system_prompt,
                 conversation_manager=conversation_manager,
                 model=model
             )
