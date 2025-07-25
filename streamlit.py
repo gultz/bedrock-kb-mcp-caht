@@ -1,5 +1,4 @@
 import streamlit as st
-import chat
 import logging
 import sys
 
