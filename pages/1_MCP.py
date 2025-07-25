@@ -1,5 +1,5 @@
 import streamlit as st
-import chat
+import chembl_agent
 import logging
 import sys
 
@@ -33,7 +33,7 @@ if query:
     st.chat_message("user").write(query)
 
     # UI 출력
-    answer = chat.run_chembl_agent(query)
+    answer = chembl_agent.run_chembl_agent(query)
     st.chat_message("assistant").write(answer)
 
     # Session 메세지 저장

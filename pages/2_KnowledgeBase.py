@@ -35,7 +35,7 @@ if query:
     st.chat_message("user").write(query)
 
     # UI 출력
-    answer = bedrock.query(query)
+    answer = kb_client.query(query)
     st.chat_message("assistant").write(answer)
 
     # Session 메세지 저장
