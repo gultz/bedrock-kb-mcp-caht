@@ -1,8 +1,7 @@
 import streamlit as st
-import chat
 import logging
 import sys
-import bedrock
+import kb_client
 
 logger = logging.getLogger("KB")  # 예: "MCP" 또는 "KB"
 if not logger.hasHandlers():
