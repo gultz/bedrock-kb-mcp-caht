@@ -1,17 +1,12 @@
-#import traceback
-#import uuid
 import logging
 import datetime
 import sys
-#import asyncio
 import os
 
-#from botocore.config import Config
 from strands import Agent, tool
 from strands.models import BedrockModel
 from strands_tools import file_write
 from botocore.config import Config
-# from strands.agent.conversationmanager import SlidingWindowConversationManager
 from strands.tools.mcp import MCPClient
 from mcp import stdio_client, StdioServerParameters
 from strands.agent.conversation_manager import SlidingWindowConversationManager
@@ -24,13 +19,6 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger("chat")
-
-# model_name = "Claude 3.7 Sonnet"
-# model_type = "claude"
-# debug_mode = "Enable"
-# model_id = "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
-# models = info.get_model_info(model_name)
-# reasoning_mode = 'Disable'
 
 
 model = BedrockModel(
@@ -76,7 +64,7 @@ def run_chembl_agent(query: str) -> str:
         """
             agent = Agent(
                 tools=tools,
-                system_prompt=system_prompt,
+                system_prompt=system_prompt
                 conversation_manager=conversation_manager,
                 model=model
             )
