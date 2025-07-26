@@ -44,9 +44,15 @@ conversation_manager = SlidingWindowConversationManager(
 )
 
 
+# chembl_mcp_client = MCPClient(lambda: stdio_client(
+#     StdioServerParameters(command="node", args=["ChEMBL-MCP-Server/build/index.js"])
+# ))
+
+
 chembl_mcp_client = MCPClient(lambda: stdio_client(
-    StdioServerParameters(command="node", args=["ChEMBL-MCP-Server/build/index.js"])
+    StdioServerParameters(command="node", args=["run", "-i", "chembl-mcp-server"])
 ))
+
 
 
 def run_chembl_agent(query: str) -> str:
