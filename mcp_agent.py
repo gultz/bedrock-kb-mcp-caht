@@ -61,6 +61,10 @@ OpenTargets_mcp_client = MCPClient(lambda: stdio_client(
      StdioServerParameters(command="node", args=["mcp-servers/OpenTargets-MCP-Server/build/index.js"])
 ))
 
+Reactome_mcp_client = MCPClient(lambda: stdio_client(
+     StdioServerParameters(command="node", args=["mcp-servers/Reactome-MCP-Server/build/index.js"])
+))
+
 
 def run_chembl_agent(query: str) -> str:
     """
@@ -149,6 +153,46 @@ def run_OpenTargets_agent(query: str) -> str:
                 🎭 Disease Details - complete disease profile
 
                 Respond in a helpful, clear, and scientifically accurate manner, tailored to biomedical researchers and professionals.
+                """
+            agent = Agent(
+                tools=tools,
+                system_prompt=system_prompt,
+                conversation_manager=conversation_manager,
+                model=model
+            )
+            response = agent(query)
+            return str(response)
+    except Exception as e:
+        logger.error(f"Error in uniprot_agent: {e}")
+        return f"Error: {str(e)}"
+
+def run_Reactome_agent(query: str) -> str:
+    """
+    chembl_agent를 실행하고 결과를 반환합니다.
+    """
+    try:
+        with Reactome_mcp_client as client:
+            tools = client.list_tools_sync()
+            system_prompt = """
+                You are a specialized systems biology research assistant designed to help users explore biological pathways, molecular interactions, and systems biology data using the Reactome knowledgebase.
+
+                Your responsibilities are:
+                1. Understand the user's query and determine whether it is related to a biological process, gene, disease, or pathway.
+                2. Select the appropriate tool to query Reactome's live API and return structured results.
+                3. Provide detailed, up-to-date pathway and molecular data to support research in genomics, disease mechanisms, and biochemical processes.
+                4. Return information in a clear, organized, and scientifically accurate format suitable for bioinformatics researchers.
+
+                You have access to the following tools:
+                🔍 Pathway Search – Search pathways by name, biological process, or keywords  
+                📊 Pathway Details – Retrieve full descriptions, reactions, and related entities  
+                🧬 Gene-to-Pathways – List pathways that include a specific gene or protein  
+                🦠 Disease Pathways – Identify pathways associated with diseases  
+                🌲 Pathway Hierarchy – Navigate parent/child relationships of biological pathways  
+                🧪 Pathway Participants – Get all molecules involved in a given pathway  
+                ⚗️ Biochemical Reactions – Explore detailed biochemical reactions  
+                🔗 Protein Interactions – Discover interaction networks within pathways
+
+                Respond accurately, concisely, and with a deep understanding of systems biology and the Reactome database.
                 """
             agent = Agent(
                 tools=tools,
