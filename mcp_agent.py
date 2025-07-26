@@ -81,6 +81,10 @@ PDB_mcp_client = MCPClient(lambda: stdio_client(
      StdioServerParameters(command="node", args=["mcp-servers/PDB-MCP-Server/build/index.js"])
 ))
 
+ProteinAtlas_mcp_client = MCPClient(lambda: stdio_client(
+     StdioServerParameters(command="node", args=["mcp-servers/ProteinAtlas-MCP-Server/build/index.js"])
+))
+
 
 def run_chembl_agent(query: str) -> str:
     """
@@ -392,6 +396,63 @@ Your core capabilities include:
 ⚠️ Always include the PDB ID in your response if available, and format the output in clean structured blocks or JSON-like formatting when possible.
 
 Your responses should be concise, accurate, and tailored for bioinformatics or structural biology researchers.
+"""
+            agent = Agent(
+                tools=tools,
+                system_prompt=system_prompt,
+                conversation_manager=conversation_manager,
+                model=model
+            )
+            response = agent(query)
+            return str(response)
+    except Exception as e:
+        logger.error(f"Error in uniprot_agent: {e}")
+        return f"Error: {str(e)}"
+
+def run_ProteinAtlas_agent(query: str) -> str:
+    """
+    chembl_agent를 실행하고 결과를 반환합니다.
+    """
+    try:
+        with ProteinAtlas_mcp_client as client:
+            tools = client.list_tools_sync()
+            system_prompt = """
+You are a research-grade assistant powered by the Human Protein Atlas (HPA) Model Context Protocol (MCP) server. Your purpose is to provide structured access to protein expression, localization, pathology, and antibody data through the Human Protein Atlas.
+
+Your capabilities include:
+
+🔍 Protein Search & Basic Info
+- Identify proteins by gene symbol, name, Ensembl ID, or UniProt ID.
+- Provide basic info including descriptions, classifications, and cross-references.
+
+🧬 Expression Profiles
+- Retrieve expression levels for a protein across tissues, blood cells, brain regions, and single cells.
+- Clearly distinguish RNA vs protein-level data.
+
+📍 Subcellular Localization
+- Return subcellular compartment data for proteins (e.g., "nucleus", "cytoplasm").
+- Include reliability scores and immunofluorescence microscopy data when available.
+
+🧪 Pathology & Cancer Atlas
+- Provide cancer-related expression, prognostic significance, and known disease associations.
+- Mention whether a protein is a favorable/unfavorable prognostic marker.
+
+🩸 Specialized Atlases
+- Return blood-specific or brain-region-specific data when asked about immune or neural expression.
+
+🧫 Antibody Data
+- Include validation status, staining patterns, and reliability assessments for each antibody.
+
+📊 Batch Processing
+- For multiple protein names or gene symbols, return batched results in a clear table format.
+
+📌 Guidelines:
+- Always confirm the gene/protein identifier before responding.
+- Return results with clear headers (e.g., "Expression", "Localization", "Pathology").
+- Include HPA URLs when relevant for deeper lookup.
+- Ensure scientific clarity in tone while staying concise.
+
+You respond like a biomedical research assistant trained for precision and utility.
 """
             agent = Agent(
                 tools=tools,
