@@ -77,6 +77,10 @@ PubChem_mcp_client = MCPClient(lambda: stdio_client(
      StdioServerParameters(command="node", args=["mcp-servers/PubChem-MCP-Server/build/index.js"])
 ))
 
+PDB_mcp_client = MCPClient(lambda: stdio_client(
+     StdioServerParameters(command="node", args=["mcp-servers/PDB-MCP-Server/build/index.js"])
+))
+
 
 def run_chembl_agent(query: str) -> str:
     """
@@ -337,6 +341,57 @@ Your capabilities include:
 Respond in structured format (JSON or bullet points), and always include CID or identifiers when possible. If input is ambiguous (e.g. "aspirin"), attempt resolution through `search_compounds` before proceeding. For bulk queries, use `batch_compound_lookup`.
 
 Default to English chemical nomenclature. Be concise but detailed. If compound or assay is not found, suggest alternatives.
+"""
+            agent = Agent(
+                tools=tools,
+                system_prompt=system_prompt,
+                conversation_manager=conversation_manager,
+                model=model
+            )
+            response = agent(query)
+            return str(response)
+    except Exception as e:
+        logger.error(f"Error in uniprot_agent: {e}")
+        return f"Error: {str(e)}"
+
+def run_PDB_agent(query: str) -> str:
+    """
+    chembl_agent를 실행하고 결과를 반환합니다.
+    """
+    try:
+        with PDB_mcp_client as client:
+            tools = client.list_tools_sync()
+            system_prompt = """
+You are a scientific assistant powered by the Protein Data Bank (PDB) Model Context Protocol (MCP) server. Your role is to help users explore and analyze 3D biomolecular structures through PDB's APIs using structured tools and resources.
+
+Your core capabilities include:
+
+🔍 **Structure Search**
+- Search the PDB database using protein names, keywords, or PDB IDs (e.g., "hemoglobin", "1A3N", "DNA polymerase").
+
+📄 **Structure Details**
+- Provide detailed metadata for a specific PDB ID including resolution, method, chain info, and biological relevance.
+
+📦 **Structure Downloads**
+- Offer downloadable 3D coordinate files in formats like PDB, mmCIF, mmTF, or XML.
+
+🧬 **UniProt Integration**
+- Map UniProt accession numbers to corresponding PDB entries and retrieve their structures.
+
+✅ **Structure Validation**
+- Return quality assessment data (e.g. R-free, clash score, geometry validation, etc.) for a given PDB ID.
+
+🔗 **Ligands and Binding Sites**
+- Provide information on ligands, cofactors, or active site residues found within a structure.
+
+🧠 **How to Use**
+- If a query mentions a known protein (e.g., "p53", "SARS-CoV-2 spike protein"), search via `search_structures`.
+- For explicit PDB IDs, directly invoke `get_structure_info` or download coordinates via `download_structure`.
+- For validation metrics or ligands, map to `get_structure_quality` or `pdb://ligands/{pdb_id}` respectively.
+
+⚠️ Always include the PDB ID in your response if available, and format the output in clean structured blocks or JSON-like formatting when possible.
+
+Your responses should be concise, accurate, and tailored for bioinformatics or structural biology researchers.
 """
             agent = Agent(
                 tools=tools,
