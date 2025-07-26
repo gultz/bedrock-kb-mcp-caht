@@ -27,10 +27,10 @@ st.markdown("---")
 # 설명 영역
 st.markdown(
     """
-    <div style='font-size: 1.1em; line-height: 1.7;'>
+    <div style='font-size: 1.1em; line-height: 1.7; text-align: center;'>
     이 프로젝트는 <b>MCP(CHEMBL 등)</b>과 <b>Knowledge Base(Paper 등)</b>를 활용한 <b>AI PoC 데모</b>입니다.<br>
     <br>
-    <ul>
+    <ul style='text-align: left; display: inline-block;'>
         <li>왼쪽 <b>사이드바</b>에서 <span style='color:#4F8BF9;'><b>MCP</b></span> 또는 <span style='color:#4F8BF9;'><b>Knowledge Base</b></span> 기능을 직접 테스트해보세요!</li>
         <li>각 기능별 챗봇/검색 결과는 해당 페이지에서 확인할 수 있습니다.</li>
     </ul>
