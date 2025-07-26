@@ -57,7 +57,7 @@ uniprot_mcp_client = MCPClient(lambda: stdio_client(
     StdioServerParameters(command="docker", args=["run", "-i", "uniprot-mcp-server"])
 ))
 
-uniprot_mcp_client = MCPClient(lambda: stdio_client(
+OpenTargets_mcp_client = MCPClient(lambda: stdio_client(
      StdioServerParameters(command="node", args=["mcp-servers/OpenTargets-MCP-Server/build/index.js"])
 ))
 
