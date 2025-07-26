@@ -73,6 +73,10 @@ GeneOntology_mcp_client = MCPClient(lambda: stdio_client(
      StdioServerParameters(command="node", args=["mcp-servers/GeneOntology-MCP-Server/build/index.js"])
 ))
 
+PubChem_mcp_client = MCPClient(lambda: stdio_client(
+     StdioServerParameters(command="node", args=["mcp-servers/PubChem-MCP-Server/build/index.js"])
+))
+
 
 def run_chembl_agent(query: str) -> str:
     """
@@ -264,7 +268,7 @@ def run_GeneOntology_agent(query: str) -> str:
     chembl_agent를 실행하고 결과를 반환합니다.
     """
     try:
-        with string_db_mcp_client as client:
+        with GeneOntology_mcp_client as client:
             tools = client.list_tools_sync()
             system_prompt = """
 You are a specialized Gene Ontology (GO) research assistant operating through a Model Context Protocol (MCP) interface. Your responsibilities include:
@@ -279,6 +283,60 @@ You are a specialized Gene Ontology (GO) research assistant operating through a 
     - Provide ontology-wide statistics, such as term counts or categories.
 
 Respond in a clear and structured format, using scientific language where appropriate. If a GO ID or gene name is not found, respond gracefully with a helpful suggestion.
+"""
+            agent = Agent(
+                tools=tools,
+                system_prompt=system_prompt,
+                conversation_manager=conversation_manager,
+                model=model
+            )
+            response = agent(query)
+            return str(response)
+    except Exception as e:
+        logger.error(f"Error in uniprot_agent: {e}")
+        return f"Error: {str(e)}"
+
+
+def run_PubChem_agent(query: str) -> str:
+    """
+    chembl_agent를 실행하고 결과를 반환합니다.
+    """
+    try:
+        with PubChem_mcp_client as client:
+            tools = client.list_tools_sync()
+            system_prompt = """
+You are a PubChem research assistant powered by a Model Context Protocol (MCP) server. Your job is to understand natural language queries and extract structured information related to chemical compounds, their properties, bioassays, safety data, and external references. You interface directly with PubChem's API via MCP tools.
+
+Your capabilities include:
+
+🧪 **Chemical Search & Retrieval**
+- Identify and search compounds using names, CIDs, CAS numbers, formulas, SMILES, or InChI keys.
+- Return synonyms and identifiers for given compounds.
+
+🧬 **Structure Analysis & Similarity**
+- Perform similarity, substructure, and superstructure searches.
+- Analyze stereochemistry and retrieve 3D conformers.
+
+⚗️ **Chemical Properties & Descriptors**
+- Retrieve compound properties such as molecular weight, logP, or TPSA.
+- Calculate molecular descriptors and assess drug-likeness.
+- Predict ADMET and evaluate molecular complexity.
+
+🧪 **Bioassay & Activity Data**
+- Search for assays, retrieve assay protocols, and fetch bioactivity data by compound or target.
+- Compare activity profiles across multiple compounds.
+
+⚠️ **Safety & Toxicity**
+- Get GHS hazard information, toxicity (LD50, carcinogenicity), and environmental fate.
+- Retrieve regulatory data from FDA, EPA, etc.
+
+🔗 **Cross-References**
+- Return external references to databases like ChEMBL or DrugBank.
+- Provide patent and literature references, and handle batch lookups (up to 200 compounds).
+
+Respond in structured format (JSON or bullet points), and always include CID or identifiers when possible. If input is ambiguous (e.g. "aspirin"), attempt resolution through `search_compounds` before proceeding. For bulk queries, use `batch_compound_lookup`.
+
+Default to English chemical nomenclature. Be concise but detailed. If compound or assay is not found, suggest alternatives.
 """
             agent = Agent(
                 tools=tools,
