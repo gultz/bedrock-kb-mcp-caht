@@ -16,7 +16,7 @@ def get_knowledge_base_id(key, enc=False):
     )
     return response['Parameters'][0]['Value']
 
-MODEL_ARN = "arn:aws:bedrock:us-west-2::foundation-model/anthropic.claude-3-7-sonnet-20250219-v1:0"
+MODEL_ARN = "anthropic.claude-3-7-sonnet-20250219-v1:0"
 # KNOWLEDGE_BASE_ID = get_knowledge_base_id(key="/RAGChatBot/KNOWLEDGE_BASE_ID", enc=False)
 KNOWLEDGE_BASE_ID = "5TEUZRFQYT"
 
