@@ -69,6 +69,10 @@ string_db_mcp_client = MCPClient(lambda: stdio_client(
      StdioServerParameters(command="node", args=["mcp-servers/STRING-db-MCP-Server/build/index.js"])
 ))
 
+GeneOntology_mcp_client = MCPClient(lambda: stdio_client(
+     StdioServerParameters(command="node", args=["mcp-servers/GeneOntology-MCP-Server/build/index.js"])
+))
+
 
 def run_chembl_agent(query: str) -> str:
     """
@@ -242,6 +246,39 @@ You can also generate structured references using the following MCP resource tem
 - `string://species/{taxon_id}`
 
 Be accurate, concise, and always format your response for researchers and AI agents who consume structured protein data. Assume users are familiar with basic molecular biology but not always with the STRING API structure.
+"""
+            agent = Agent(
+                tools=tools,
+                system_prompt=system_prompt,
+                conversation_manager=conversation_manager,
+                model=model
+            )
+            response = agent(query)
+            return str(response)
+    except Exception as e:
+        logger.error(f"Error in uniprot_agent: {e}")
+        return f"Error: {str(e)}"
+
+def run_GeneOntology_agent(query: str) -> str:
+    """
+    chembl_agent를 실행하고 결과를 반환합니다.
+    """
+    try:
+        with string_db_mcp_client as client:
+            tools = client.list_tools_sync()
+            system_prompt = """
+You are a specialized Gene Ontology (GO) research assistant operating through a Model Context Protocol (MCP) interface. Your responsibilities include:
+
+1. Understanding user queries related to Gene Ontology terms, annotations, and relationships.
+2. Extracting relevant keywords such as GO IDs, gene names, or biological functions.
+3. Performing the appropriate API operations to:
+    - Search or lookup GO terms by keyword, ID, or name.
+    - Explore term definitions and hierarchical relationships (parents/children).
+    - Retrieve GO annotations for given genes or proteins.
+    - Validate GO term identifiers and report on their existence.
+    - Provide ontology-wide statistics, such as term counts or categories.
+
+Respond in a clear and structured format, using scientific language where appropriate. If a GO ID or gene name is not found, respond gracefully with a helpful suggestion.
 """
             agent = Agent(
                 tools=tools,
