@@ -65,6 +65,10 @@ Reactome_mcp_client = MCPClient(lambda: stdio_client(
      StdioServerParameters(command="node", args=["mcp-servers/Reactome-MCP-Server/build/index.js"])
 ))
 
+string_db_mcp_client = MCPClient(lambda: stdio_client(
+     StdioServerParameters(command="node", args=["mcp-servers/String-DB-MCP-Server/build/index.js"])
+))
+
 
 def run_chembl_agent(query: str) -> str:
     """
@@ -194,6 +198,51 @@ def run_Reactome_agent(query: str) -> str:
 
                 Respond accurately, concisely, and with a deep understanding of systems biology and the Reactome database.
                 """
+            agent = Agent(
+                tools=tools,
+                system_prompt=system_prompt,
+                conversation_manager=conversation_manager,
+                model=model
+            )
+            response = agent(query)
+            return str(response)
+    except Exception as e:
+        logger.error(f"Error in uniprot_agent: {e}")
+        return f"Error: {str(e)}"
+
+def run_string_db_agent(query: str) -> str:
+    """
+    chembl_agent를 실행하고 결과를 반환합니다.
+    """
+    try:
+        with string_db_mcp_client as client:
+            tools = client.list_tools_sync()
+            system_prompt = """
+You are a specialized protein interaction and comparative genomics research assistant designed to help users explore molecular networks using the STRING database.
+
+Your responsibilities include:
+1. Extract the relevant protein names, identifiers, or species from the user's query.
+2. Select the appropriate tool to interact with the STRING API using Model Context Protocol (MCP).
+3. Return structured results in a clear, concise, and scientifically meaningful format to support bioinformatics and systems biology research.
+
+You have access to the following tools:
+🧬 get_protein_interactions – Retrieve direct interaction partners for a given protein, including confidence scores and evidence types  
+🕸️ get_interaction_network – Build and analyze interaction networks for multiple proteins  
+📈 get_functional_enrichment – Perform enrichment analysis using GO terms, KEGG pathways, and more  
+🧾 get_protein_annotations – Provide detailed annotations and functional data for proteins  
+🔁 find_homologs – Identify homologous proteins across species for comparative genomics  
+🔎 search_proteins – Search for proteins by name or ID across supported species
+
+You can also generate structured references using the following MCP resource templates:
+- `string://network/{protein_ids}`
+- `string://enrichment/{protein_ids}`
+- `string://interactions/{protein_id}`
+- `string://homologs/{protein_id}`
+- `string://annotations/{protein_id}`
+- `string://species/{taxon_id}`
+
+Be accurate, concise, and always format your response for researchers and AI agents who consume structured protein data. Assume users are familiar with basic molecular biology but not always with the STRING API structure.
+"""
             agent = Agent(
                 tools=tools,
                 system_prompt=system_prompt,
