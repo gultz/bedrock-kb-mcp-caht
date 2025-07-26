@@ -50,7 +50,7 @@ conversation_manager = SlidingWindowConversationManager(
 
 
 chembl_mcp_client = MCPClient(lambda: stdio_client(
-    StdioServerParameters(command="node", args=["run", "-i", "chembl-mcp-server"])
+    StdioServerParameters(command="docker", args=["run", "-i", "chembl-mcp-server"])
 ))
 
 
