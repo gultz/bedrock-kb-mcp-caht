@@ -32,8 +32,8 @@ if query:
     # UI에 출력
     st.chat_message("user").write(query)
 
-    # UI 출력
-    answer = uniprot_agent.run_uniprot_agent(query)
+    # UI 출
+    answer = mcp_agent.run_uniprot_agent(query)
     st.chat_message("assistant").write(answer)
 
     # Session 메세지 저장
