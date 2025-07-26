@@ -1,6 +1,7 @@
 import streamlit as st
 import chembl_agent
 import logging
+import uniprot_agent
 import sys
 
 logger = logging.getLogger("MCP")  # 예: "MCP" 또는 "KB"
@@ -33,7 +34,7 @@ if query:
     st.chat_message("user").write(query)
 
     # UI 출력
-    answer = chembl_agent.run_chembl_agent(query)
+    answer = uniprot_agent.run_uniprot_agent(query)
     st.chat_message("assistant").write(answer)
 
     # Session 메세지 저장
