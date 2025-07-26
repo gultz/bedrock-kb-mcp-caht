@@ -3,7 +3,7 @@ import mcp_agent
 import logging
 import sys
 
-logger = logging.getLogger("MCP")  # 예: "MCP" 또는 "KB"
+logger = logging.getLogger("uniProt_MCP")  # 예: "MCP" 또는 "KB"
 if not logger.hasHandlers():
     handler = logging.StreamHandler(sys.stderr)
     formatter = logging.Formatter('%(filename)s:%(lineno)d | %(message)s')
