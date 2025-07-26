@@ -66,7 +66,7 @@ Reactome_mcp_client = MCPClient(lambda: stdio_client(
 ))
 
 string_db_mcp_client = MCPClient(lambda: stdio_client(
-     StdioServerParameters(command="node", args=["mcp-servers/String-DB-MCP-Server/build/index.js"])
+     StdioServerParameters(command="node", args=["mcp-servers/STRING-db-MCP-Server/build/index.js"])
 ))
 
 
