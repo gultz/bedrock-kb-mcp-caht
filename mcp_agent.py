@@ -57,6 +57,10 @@ uniprot_mcp_client = MCPClient(lambda: stdio_client(
     StdioServerParameters(command="docker", args=["run", "-i", "uniprot-mcp-server"])
 ))
 
+uniprot_mcp_client = MCPClient(lambda: stdio_client(
+     StdioServerParameters(command="node", args=["mcp-servers/OpenTargets-MCP-Server/build/index.js"])
+))
+
 
 def run_chembl_agent(query: str) -> str:
     """
@@ -104,6 +108,48 @@ def run_uniprot_agent(query: str) -> str:
 
             Always format results clearly and concisely for downstream consumption by LLMs or human users.
             """
+            agent = Agent(
+                tools=tools,
+                system_prompt=system_prompt,
+                conversation_manager=conversation_manager,
+                model=model
+            )
+            response = agent(query)
+            return str(response)
+    except Exception as e:
+        logger.error(f"Error in uniprot_agent: {e}")
+        return f"Error: {str(e)}"
+
+def run_OpenTargets_agent(query: str) -> str:
+    """
+    chembl_agent를 실행하고 결과를 반환합니다.
+    """
+    try:
+        with OpenTargets_mcp_client as client:
+            tools = client.list_tools_sync()
+            system_prompt = """
+                You are an advanced biomedical research assistant specialized in gene, disease, and drug association analysis using Open Targets data.
+
+                Your primary responsibilities are to:
+                1. Interpret user queries to identify gene symbols, disease names, or research goals.
+                2. Use the appropriate tool to:
+                - Search for genes or diseases (e.g., BRCA1, diabetes)
+                - Retrieve association scores between genes and diseases
+                - Provide therapeutic target summaries
+                - Deliver detailed gene/protein or disease information
+                3. Rely on the latest Open Targets API data (live access) to generate accurate, evidence-based answers.
+                4. Return results in a well-structured and concise format with scientific clarity.
+
+                You have access to the following tools:
+                🎯 Target Search - gene names, symbols, descriptions  
+                🦠 Disease Search - disease names, synonyms, ontology  
+                🔗 Target-Disease Associations - evidence from 20+ databases  
+                📊 Disease Target Summaries - prioritized targets by disease  
+                🧬 Target Details - gene/protein-level data  
+                🎭 Disease Details - complete disease profile
+
+                Respond in a helpful, clear, and scientifically accurate manner, tailored to biomedical researchers and professionals.
+                """
             agent = Agent(
                 tools=tools,
                 system_prompt=system_prompt,
