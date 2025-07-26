@@ -1,7 +1,6 @@
 import streamlit as st
-import chembl_agent
+import mcp_agent
 import logging
-import uniprot_agent
 import sys
 
 logger = logging.getLogger("MCP")  # 예: "MCP" 또는 "KB"
