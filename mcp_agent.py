@@ -134,7 +134,7 @@ def run_uniprot_agent(query: str) -> str:
             Always format results clearly and concisely for downstream consumption by LLMs or human users.
             """
             agent = Agent(
-                tools=tools,
+                tools=tools[:1],
                 system_prompt=system_prompt,
                 conversation_manager=conversation_manager,
                 model=model
