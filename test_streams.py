@@ -1,53 +1,42 @@
-import asyncio
-from strands import Agent
-from strands_tools import calculator
+import streamlit as st
 import mcp_agent
-
-# Initialize our agent without a import logging
-import datetime
+import logging
 import sys
-import os
+import asyncio
 
-from strands import Agent, tool
-from strands.models import BedrockModel
-from strands_tools import file_write
-from botocore.config import Config
-from strands.tools.mcp import MCPClient
-from mcp import stdio_client, StdioServerParameters
+logger = logging.getLogger("CHEMBL_MCP")  # 예: "MCP" 또는 "KB"
+if not logger.hasHandlers():
+    handler = logging.StreamHandler(sys.stderr)
+    formatter = logging.Formatter('%(filename)s:%(lineno)d | %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+logger.setLevel(logging.INFO)
 
-# MCP 클라이언트 정의
-chembl_mcp_client = MCPClient(lambda: stdio_client(
-    StdioServerParameters(command="docker", args=["run", "-i", "chembl-mcp-server"])
-))
+st.title("CHEMBL_MCP Page")
+st.write("This is the CHEMBL_MCP page content.")
 
-# Bedrock 모델 설정
-model = BedrockModel(
-    boto_client_config=Config(
-        read_timeout=900,
-        connect_timeout=900,
-        retries=dict(max_attempts=3, mode="adaptive"),
-    ),
-    model_id="us.anthropic.claude-3-7-sonnet-20250219-v1:0",
-    max_tokens=5000,
-    temperature=0.1,
-    top_p=0.9,
-)
+if "CHEMBL_MCP_messages" not in st.session_state:
+    st.session_state["CHEMBL_MCP_messages"] = [
+        {"role": "assistant", "content": "안녕하세요, 무엇이 궁금하세요?"}
+    ]
+# 지난 답변 출력
+for msg in st.session_state.CHEMBL_MCP_messages:
+    st.chat_message(msg["role"]).write(msg["content"])
 
-# Async function that iterators over streamed agent events
-async def process_streaming_response():
-    # MCP 클라이언트를 with 문 안에서 사용
-    with chembl_mcp_client as client:
-        tools = client.list_tools_sync()
-        
-        agent = Agent(
-            tools=tools
-            model=model,
-            callback_handler=None
-        )
-        
-        agent_stream = agent.stream_async("What is the mechanism of action of imatinib?")
-        async for event in agent_stream:
-            print(event)
 
-# Run the agent
-asyncio.run(process_streaming_response())
+#유저가 쓴 chat을 query라는 변수에 담음
+query = st.chat_input("chat with CHEMBL_MCP_messages")
+if query:
+    # Session에 메세지 저장
+    st.session_state.CHEMBL_MCP_messages.append({"role": "user", "content": query})
+    
+    # UI에 출력
+    st.chat_message("user").write(query)
+
+    # UI 출력
+
+    answer = mcp_agent.run_chembl_agent(query)
+    st.chat_message("assistant").write(answer)
+
+    # Session 메세지 저장
+    st.session_state.CHEMBL_MCP_messages.append({"role": "assistant", "content": answer})
