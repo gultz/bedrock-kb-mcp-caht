@@ -11,14 +11,14 @@ from strands.tools.mcp import MCPClient
 from mcp import stdio_client, StdioServerParameters
 from strands.agent.conversation_manager import SlidingWindowConversationManager
 
-logging.basicConfig(
-    level=logging.INFO,  # Defaulx t to INFO level
-    format='%(filename)s:%(lineno)d | %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stderr)
-    ]
-)
-logger = logging.getLogger("chat")
+# logging.basicConfig(
+#     level=logging.INFO,  # Defaulx t to INFO level
+#     format='%(filename)s:%(lineno)d | %(message)s',
+#     handlers=[
+#         logging.StreamHandler(sys.stderr)
+#     ]
+# )
+# logger = logging.getLogger("chat")
 
 
 model = BedrockModel(
