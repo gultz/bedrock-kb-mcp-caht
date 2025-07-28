@@ -41,7 +41,7 @@ model = BedrockModel(
 )
 
 conversation_manager = SlidingWindowConversationManager(
-    window_size=10,  
+    window_size=3,  
 )
 
 
@@ -118,7 +118,6 @@ def run_uniprot_agent(query: str) -> str:
     uniprot_agent를 실행하고 결과를 반환합니다.
     """
 
-    
     try:
         with uniprot_mcp_client as client:
             tools = client.list_tools_sync()
