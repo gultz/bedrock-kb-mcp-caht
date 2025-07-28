@@ -32,6 +32,7 @@ model = BedrockModel(
     stop_sequences=["\n\nHuman:"],
     temperature=0.1,
     top_p=0.9,
+    STRANDS_BUDGET_TOKENS = 180000,
     additional_request_fields={
         "thinking": {
             "type": "disabled"
