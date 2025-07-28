@@ -28,7 +28,7 @@ model = BedrockModel(
         retries=dict(max_attempts=3, mode="adaptive"),
     ),
     model_id="us.anthropic.claude-3-7-sonnet-20250219-v1:0",
-    max_tokens=32000,
+    max_tokens = 32000,
     stop_sequences=["\n\nHuman:"],
     temperature=0.1,
     top_p=0.9,
@@ -40,7 +40,7 @@ model = BedrockModel(
 )
 
 conversation_manager = SlidingWindowConversationManager(
-    window_size=10,  
+    window_size=5,  
 )
 
 
@@ -90,6 +90,7 @@ def run_chembl_agent(query: str) -> str:
     """
     chembl_agent를 실행하고 결과를 반환합니다.
     """
+   
     try:
         with chembl_mcp_client as client:
             tools = client.list_tools_sync()
