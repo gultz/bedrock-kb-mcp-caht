@@ -87,6 +87,16 @@ ProteinAtlas_mcp_client = MCPClient(lambda: stdio_client(
 ))
 
 
+chembl_agent_tools = chembl_mcp_client.list_tools_sync()
+uniprot_agent_tools = uniprot_mcp_client.list_tools_sync()
+OpenTargets_agent_tools = OpenTargets_mcp_client.list_tools_sync()
+Reactome_agent_tools = Reactome_mcp_client.list_tools_sync()
+string_db_agent_tools = string_db_mcp_client.list_tools_sync()
+GeneOntology_agent_tools = GeneOntology_mcp_client.list_tools_sync()
+PubChem_agent_tools = PubChem_mcp_client.list_tools_sync()
+PDB_agent_tools = PDB_mcp_client.list_tools_sync()
+
+
 def run_chembl_agent(query: str) -> str:
     """
     chembl_agent를 실행하고 결과를 반환합니다.
@@ -94,7 +104,7 @@ def run_chembl_agent(query: str) -> str:
    
     try:
         with chembl_mcp_client as client:
-            tools = client.list_tools_sync()
+            tools = chembl_agent_tools
             system_prompt = """
         You are a specialized ChEMBL research agent. Your role is to:
         1. Extract either the compound name or target name from the query
@@ -105,13 +115,43 @@ def run_chembl_agent(query: str) -> str:
                 tools=tools,
                 system_prompt=system_prompt,
                 conversation_manager=conversation_manager,
-                model=model
+                model=model,
+                callback_handler = None
             )
             response = agent(query)
             return str(response)
     except Exception as e:
         logger.error(f"Error in chembl_agent: {e}")
         return f"Error: {str(e)}"
+
+async def run_chembl_agent_test(query: str) -> str:
+    """
+    chembl_agent를 실행하고 결과를 반환합니다.
+    """
+   
+    try:
+        with chembl_mcp_client as client:
+            tools = chembl_agent_tools
+            system_prompt = """
+        You are a specialized ChEMBL research agent. Your role is to:
+        1. Extract either the compound name or target name from the query
+        2. Search ChEMBL with the name
+        3. Return structured, well-formatted compound information with SMILES and activity information for the name
+        """
+            agent = Agent(
+                tools=tools,
+                system_prompt=system_prompt,
+                conversation_manager=conversation_manager,
+                model=model,
+                callback_handler = None
+            )
+            response = agent(query)
+            return str(response)
+    except Exception as e:
+        logger.error(f"Error in chembl_agent: {e}")
+        return f"Error: {str(e)}"
+
+
 
 def run_uniprot_agent(query: str) -> str:
     """
