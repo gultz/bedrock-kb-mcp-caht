@@ -40,7 +40,7 @@ model = BedrockModel(
 )
 
 conversation_manager = SlidingWindowConversationManager(
-    window_size=5,  
+    window_size=10,  
 )
 
 
