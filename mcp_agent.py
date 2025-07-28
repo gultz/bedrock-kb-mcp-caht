@@ -87,14 +87,14 @@ ProteinAtlas_mcp_client = MCPClient(lambda: stdio_client(
 ))
 
 
-chembl_agent_tools = chembl_mcp_client.list_tools_sync()
-uniprot_agent_tools = uniprot_mcp_client.list_tools_sync()
-OpenTargets_agent_tools = OpenTargets_mcp_client.list_tools_sync()
-Reactome_agent_tools = Reactome_mcp_client.list_tools_sync()
-string_db_agent_tools = string_db_mcp_client.list_tools_sync()
-GeneOntology_agent_tools = GeneOntology_mcp_client.list_tools_sync()
-PubChem_agent_tools = PubChem_mcp_client.list_tools_sync()
-PDB_agent_tools = PDB_mcp_client.list_tools_sync()
+# chembl_agent_tools = chembl_mcp_client.list_tools_sync()
+# uniprot_agent_tools = uniprot_mcp_client.list_tools_sync()
+# OpenTargets_agent_tools = OpenTargets_mcp_client.list_tools_sync()
+# Reactome_agent_tools = Reactome_mcp_client.list_tools_sync()
+# string_db_agent_tools = string_db_mcp_client.list_tools_sync()
+# GeneOntology_agent_tools = GeneOntology_mcp_client.list_tools_sync()
+# PubChem_agent_tools = PubChem_mcp_client.list_tools_sync()
+# PDB_agent_tools = PDB_mcp_client.list_tools_sync()
 
 
 def run_chembl_agent(query: str) -> str:
@@ -104,7 +104,7 @@ def run_chembl_agent(query: str) -> str:
    
     try:
         with chembl_mcp_client as client:
-            tools = chembl_agent_tools
+            tools = chembl_mcp_client.list_tools_sync()
             system_prompt = """
         You are a specialized ChEMBL research agent. Your role is to:
         1. Extract either the compound name or target name from the query
@@ -131,7 +131,7 @@ async def run_chembl_agent_test(query: str) -> str:
    
     try:
         with chembl_mcp_client as client:
-            tools = chembl_agent_tools
+            tools = chembl_mcp_client.list_tools_sync()
             system_prompt = """
         You are a specialized ChEMBL research agent. Your role is to:
         1. Extract either the compound name or target name from the query
@@ -145,8 +145,9 @@ async def run_chembl_agent_test(query: str) -> str:
                 model=model,
                 callback_handler = None
             )
-            response = agent(query)
-            return str(response)
+            agent_stream = agent.stream_async(query)
+            async for event in agent_stream:
+                return str(event)
     except Exception as e:
         logger.error(f"Error in chembl_agent: {e}")
         return f"Error: {str(e)}"
