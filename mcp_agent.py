@@ -104,7 +104,7 @@ def run_chembl_agent(query: str) -> str:
    
     try:
         with chembl_mcp_client as client:
-            tools = chembl_mcp_client.list_tools_sync()
+            tools = client.list_tools_sync()
             system_prompt = """
         You are a specialized ChEMBL research agent. Your role is to:
         1. Extract either the compound name or target name from the query
@@ -116,42 +116,12 @@ def run_chembl_agent(query: str) -> str:
                 system_prompt=system_prompt,
                 conversation_manager=conversation_manager,
                 model=model,
-                callback_handler = None
             )
             response = agent(query)
             return str(response)
     except Exception as e:
         logger.error(f"Error in chembl_agent: {e}")
         return f"Error: {str(e)}"
-
-async def run_chembl_agent_test(query: str) -> str:
-    """
-    chembl_agent를 실행하고 결과를 반환합니다.
-    """
-   
-    try:
-        with chembl_mcp_client as client:
-            tools = chembl_mcp_client.list_tools_sync()
-            system_prompt = """
-        You are a specialized ChEMBL research agent. Your role is to:
-        1. Extract either the compound name or target name from the query
-        2. Search ChEMBL with the name
-        3. Return structured, well-formatted compound information with SMILES and activity information for the name
-        """
-            agent = Agent(
-                tools=tools,
-                system_prompt=system_prompt,
-                conversation_manager=conversation_manager,
-                model=model,
-                callback_handler = None
-            )
-            agent_stream = agent.stream_async(query)
-            async for event in agent_stream:
-                return str(event)
-    except Exception as e:
-        logger.error(f"Error in chembl_agent: {e}")
-        return f"Error: {str(e)}"
-
 
 
 def run_uniprot_agent(query: str) -> str:
