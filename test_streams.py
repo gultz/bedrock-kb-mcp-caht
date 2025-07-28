@@ -14,7 +14,7 @@ from strands_tools import file_write
 from botocore.config import Config
 from strands.tools.mcp import MCPClient
 from mcp import stdio_client, StdioServerParameters
-from strands.agent.conversation_manager import SlidingWindowConversationManagercallback handler
+
 
 chembl_mcp_client = MCPClient(lambda: stdio_client(
     StdioServerParameters(command="docker", args=["run", "-i", "chembl-mcp-server"])
