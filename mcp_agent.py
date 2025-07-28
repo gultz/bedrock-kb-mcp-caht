@@ -118,10 +118,7 @@ def run_uniprot_agent(query: str) -> str:
     uniprot_agent를 실행하고 결과를 반환합니다.
     """
 
-    conversation_manager = SlidingWindowConversationManager(
-    window_size=3,  
-    )
-
+    
     try:
         with uniprot_mcp_client as client:
             tools = client.list_tools_sync()
@@ -139,7 +136,7 @@ def run_uniprot_agent(query: str) -> str:
             Always format results clearly and concisely for downstream consumption by LLMs or human users.
             """
             agent = Agent(
-                tools=tools,
+                tools=tools[:10],
                 system_prompt=system_prompt,
                 conversation_manager=conversation_manager,
                 model=model
