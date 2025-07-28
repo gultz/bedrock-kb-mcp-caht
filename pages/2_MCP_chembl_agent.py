@@ -2,6 +2,7 @@ import streamlit as st
 import mcp_agent
 import logging
 import sys
+import asyncio
 
 logger = logging.getLogger("CHEMBL_MCP")  # 예: "MCP" 또는 "KB"
 if not logger.hasHandlers():
@@ -33,6 +34,7 @@ if query:
     st.chat_message("user").write(query)
 
     # UI 출력
+
     answer = mcp_agent.run_chembl_agent(query)
     st.chat_message("assistant").write(answer)
 
