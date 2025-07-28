@@ -40,7 +40,7 @@ async def process_streaming_response():
         tools = client.list_tools_sync()
         
         agent = Agent(
-            tools=tools,
+            tools=tools
             model=model,
             callback_handler=None
         )
