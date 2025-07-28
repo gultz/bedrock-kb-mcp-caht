@@ -115,8 +115,13 @@ def run_chembl_agent(query: str) -> str:
 
 def run_uniprot_agent(query: str) -> str:
     """
-    chembl_agent를 실행하고 결과를 반환합니다.
+    uniprot_agent를 실행하고 결과를 반환합니다.
     """
+
+    conversation_manager = SlidingWindowConversationManager(
+    window_size=3,  
+    )
+
     try:
         with uniprot_mcp_client as client:
             tools = client.list_tools_sync()
@@ -134,7 +139,7 @@ def run_uniprot_agent(query: str) -> str:
             Always format results clearly and concisely for downstream consumption by LLMs or human users.
             """
             agent = Agent(
-                tools=tools[:1],
+                tools=tools,
                 system_prompt=system_prompt,
                 conversation_manager=conversation_manager,
                 model=model
