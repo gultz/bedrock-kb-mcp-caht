@@ -19,9 +19,10 @@ from mcp import stdio_client, StdioServerParameters
 chembl_mcp_client = MCPClient(lambda: stdio_client(
     StdioServerParameters(command="docker", args=["run", "-i", "chembl-mcp-server"])
 ))
+chembl_agent_tools = chembl_mcp_client.list_tools_sync()
 
 agent = Agent(
-    tools=[chembl_mcp_client.list_tools_sync()],
+    tools=chembl_agent_tools,
     callback_handler=None
 )
 
