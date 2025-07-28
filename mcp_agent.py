@@ -28,7 +28,7 @@ model = BedrockModel(
         retries=dict(max_attempts=3, mode="adaptive"),
     ),
     model_id="us.anthropic.claude-3-7-sonnet-20250219-v1:0",
-    max_tokens=64000,
+    max_tokens=32000,
     stop_sequences=["\n\nHuman:"],
     temperature=0.1,
     top_p=0.9,
