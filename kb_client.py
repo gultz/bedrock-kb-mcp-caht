@@ -20,6 +20,25 @@ MODEL_ARN = "arn:aws:bedrock:us-west-2:170483442401:inference-profile/us.anthrop
 # KNOWLEDGE_BASE_ID = get_knowledge_base_id(key="/RAGChatBot/KNOWLEDGE_BASE_ID", enc=False)
 KNOWLEDGE_BASE_ID = "UUKNDSQHHQ"
 
+
+def parse_bedrock_response(response):
+    result = {
+        "text": response.get("output", {}).get("text"),
+        "metadata_list": [],
+        "s3_uri_list": []
+    }
+
+    for citation in response.get("citations", []):
+        for ref in citation.get("retrievedReferences", []):
+            result["metadata_list"].append(
+                ref.get("metadata", {})
+            )
+            result["s3_uri_list"].append(
+                ref.get("location", {}).get("s3Location", {}).get("uri")
+            )
+
+    return result
+
 def query(question):
     response = bedrock_agent_runtime_client.retrieve_and_generate(
         input={
@@ -47,4 +66,7 @@ def query(question):
             }
         },
     )
-    return response['output']['text']
+
+    parsed = parse_bedrock_response(response)
+
+    return parsed
