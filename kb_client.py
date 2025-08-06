@@ -27,42 +27,47 @@ def embed_v2(text: str):
 
 def query(question):
     # 1) 질문을 v2로 임베딩
+    # 1) 질문 임베딩 → KNN 검색 (같음)
     q_vec = embed_v2(question)
+    knn = os_client.search(
+        index=INDEX,
+        body={"size": 5, "query": {"knn": {VEC_FIELD: {"vector": q_vec, "k": 5}}}}
+    )
 
-    # 2) AOSS에서 v2 필드로 KNN
-    knn_body = {"size": 5, "query": {"knn": {VEC_FIELD: {"vector": q_vec, "k": 5}}}}
-    knn = os_client.search(index=INDEX, body=knn_body)
-
-    # 3) 검색 결과를 외부 소스로 구성 (필수: type="EXTERNAL", $search_results$에서 소비됨)
-    sources = []
-    for hit in knn["hits"]["hits"]:
-        doc_id = hit["_id"]
+    # 2) 히트들을 하나의 문자열로 합치기 (섹션 구분 추가 권장)
+    chunks = []
+    for i, hit in enumerate(knn["hits"]["hits"], 1):
         txt = (hit["_source"].get(TEXT_FIELD) or "").strip()
         if not txt:
             continue
-        sources.append({
-            "sourceType": "BYTE_CONTENT",
-            "byteContent": {
-                "contentType": "text/plain",
-                "data": base64.b64encode(txt.encode("utf-8")).decode("ascii"),  # blob = base64
-                "identifier": doc_id
-            }
-        })
+        src = hit["_source"].get("x-amz-bedrock-kb-source-uri") or hit["_id"]
+        chunks.append(f"[Source {i}] {src}\n{txt}")
 
-    # 4) RnG 호출 (EXTERNAL_SOURCES)
+    merged = "\n\n----\n\n".join(chunks)
+    payload = {
+        "sourceType": "BYTE_CONTENT",
+        "byteContent": {
+            "contentType": "text/plain",
+            "data": base64.b64encode(merged.encode("utf-8")).decode("ascii"),
+            "identifier": f"knn-top{len(chunks)}"
+        }
+    }
+
+
+    # 3) RnG 호출 (EXTERNAL_SOURCES는 sources 한 개만!)
     resp = bedrock_agent_runtime_client.retrieve_and_generate(
         input={"text": question},
         retrieveAndGenerateConfiguration={
             "type": "EXTERNAL_SOURCES",
             "externalSourcesConfiguration": {
                 "modelArn": MODEL_ARN,
-                "sources": sources,
+                "sources": [payload],  # <= 반드시 길이 1
                 "generationConfiguration": {
                     "promptTemplate": {
                         "textPromptTemplate": (
-                            "Based only on the following search results, answer in Korean clearly and concisely.\n"
-                            "\n[Search Results]\n$search_results$\n"
-                            "\n[Answer]"
+                            "의학/제약 논문 맥락에서, 아래 검색결과만 근거로 "
+                            "명확하고 간결한 한국어 답변을 작성하라.\n\n"
+                            "[검색 결과]\n$search_results$\n\n[답변]"
                         )
                     },
                     "inferenceConfig": {
