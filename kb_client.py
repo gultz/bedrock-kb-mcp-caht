@@ -77,6 +77,4 @@ def query(question):
             }
         },
     )
-    return {
-        resp.get("output", {}).get("text")
-    }
+    return resp.get("output", {}).get("text")
