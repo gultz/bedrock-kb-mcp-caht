@@ -48,7 +48,7 @@ def parse_bedrock_response(response):
     
     return result
 
-def query(question)
+def query(question):
     response = bedrock_agent_runtime_client.retrieve_and_generate(
         input={
             'text': question
