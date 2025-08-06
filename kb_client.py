@@ -34,6 +34,11 @@ def query(question):
                     'vectorSearchConfiguration': {
                         'overrideSearchType': 'HYBRID'
                     }
+                },
+                'generationConfiguration': {
+                    "promptTemplate": { 
+                       "textPromptTemplate": "answer me to korean. not english"
+                    }
                 }
             }
         },
