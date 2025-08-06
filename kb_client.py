@@ -57,7 +57,7 @@ def query(question):
                 'modelArn': MODEL_ARN,
                 'retrievalConfiguration': {
                     'vectorSearchConfiguration': {
-                        'overrideSearchType': 'HYBRID'
+                        "numberOfResults": 3
                     }
                 },
                 'generationConfiguration': {
