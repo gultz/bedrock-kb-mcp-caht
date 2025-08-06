@@ -37,7 +37,11 @@ def query(question):
                 },
                 'generationConfiguration': {
                     "promptTemplate": { 
-                       "textPromptTemplate": "answer me to korean. not english"
+                       "textPromptTemplate": (
+                            "Based only on the following search results, answer in Korean clearly and concisely.\n"
+                            "\n[Search Results]\n$search_results$\n"
+                            "\n[Answer]"
+                        )
                     }
                 }
             }
