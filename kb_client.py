@@ -65,7 +65,7 @@ def query(question):
                 "generationConfiguration": {
                     "promptTemplate": {
                         "textPromptTemplate": (
-                            "의학/제약 논문 맥락에서, 아래 검색결과만 근거로 "
+                            "의학/제약 논문 맥락에서, 아래 검색결과만 근거로 그리고 답변에 무슨 논문을 참고해서 답을 얻었는지 S3주소도 포함시키고 논문 이름도 포함시켜라."
                             "명확하고 간결한 한국어 답변을 작성하라.\n\n"
                             "[검색 결과]\n$search_results$\n\n[답변]"
                         )
