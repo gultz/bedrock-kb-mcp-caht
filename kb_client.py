@@ -22,24 +22,33 @@ KNOWLEDGE_BASE_ID = "UUKNDSQHHQ"
 
 
 def parse_bedrock_response(response):
-    result = {
-        "text": response.get("output", {}).get("text"),
-        "metadata_list": [],
-        "s3_uri_list": []
-    }
+    # text는 항상 있으므로 값만 반환
+    text = response.get("output", {}).get("text")
+    
+    metadata_list = []
+    s3_uri_list = []
 
     for citation in response.get("citations", []):
         for ref in citation.get("retrievedReferences", []):
-            result["metadata_list"].append(
-                ref.get("metadata", {})
-            )
-            result["s3_uri_list"].append(
-                ref.get("location", {}).get("s3Location", {}).get("uri")
-            )
-
+            metadata = ref.get("metadata", {})
+            if metadata:
+                metadata_list.append(metadata)
+            
+            s3_uri = ref.get("location", {}).get("s3Location", {}).get("uri")
+            if s3_uri:
+                s3_uri_list.append(s3_uri)
+    
+    # 반환 형식: text, metadata_list (있을 경우), s3_uri_list (있을 경우)
+    result = [text]
+    
+    if metadata_list:
+        result.append(metadata_list)
+    if s3_uri_list:
+        result.append(s3_uri_list)
+    
     return result
 
-def query(question):
+def query(question)
     response = bedrock_agent_runtime_client.retrieve_and_generate(
         input={
             'text': question
@@ -67,6 +76,7 @@ def query(question):
         },
     )
 
-    parsed = parse_bedrock_response(response)
 
+    parsed = parse_bedrock_response(response)
+    
     return parsed
