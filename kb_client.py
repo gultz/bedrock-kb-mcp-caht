@@ -25,7 +25,7 @@ def parse_bedrock_response(response):
     # text는 항상 있으므로 값만 반환
     text = response.get("output", {}).get("text")
     
-   metadata_list = [
+    metadata_list = [
         ref.get("metadata", {})
         for c in response.get("citations", [])
         for ref in c.get("retrievedReferences", [])
