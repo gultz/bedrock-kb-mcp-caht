@@ -25,28 +25,25 @@ def parse_bedrock_response(response):
     # text는 항상 있으므로 값만 반환
     text = response.get("output", {}).get("text")
     
-    metadata_list = []
-    s3_uri_list = []
+   metadata_list = [
+        ref.get("metadata", {})
+        for c in response.get("citations", [])
+        for ref in c.get("retrievedReferences", [])
+        if ref.get("metadata")
+    ]
 
-    for citation in response.get("citations", []):
-        for ref in citation.get("retrievedReferences", []):
-            metadata = ref.get("metadata", {})
-            if metadata:
-                metadata_list.append(metadata)
-            
-            s3_uri = ref.get("location", {}).get("s3Location", {}).get("uri")
-            if s3_uri:
-                s3_uri_list.append(s3_uri)
+    s3_uri_list = [
+        ref.get("location", {}).get("s3Location", {}).get("uri")
+        for c in response.get("citations", [])
+        for ref in c.get("retrievedReferences", [])
+        if ref.get("location", {}).get("s3Location", {}).get("uri")
+    ]
     
-    # 반환 형식: text, metadata_list (있을 경우), s3_uri_list (있을 경우)
-    result = [text]
-    
-    if metadata_list:
-        result.append(metadata_list)
-    if s3_uri_list:
-        result.append(s3_uri_list)
-    
-    return result
+    return {
+        "text": text,
+        "metadata_list": metadata_list,  # list[dict]
+        "s3_uri_list": s3_uri_list           # list[str]
+    }
 
 def query(question):
     response = bedrock_agent_runtime_client.retrieve_and_generate(
