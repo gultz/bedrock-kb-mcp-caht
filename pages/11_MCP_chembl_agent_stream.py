@@ -112,7 +112,7 @@ if query:
     st.chat_message("assistant").write(answer_text)
 
     # Session 메세지 저장
-    st.session_state.CHEMBL_STREAM_MCP_messages.append({"role": "assistant", "content": answer})
+    st.session_state.CHEMBL_STREAM_MCP_messages.append({"role": "assistant", "content": answer_text})
     
     
     # # 3-7. 답변 chat-bubble + 히스토리 저장
