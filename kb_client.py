@@ -78,12 +78,12 @@ def query(question):
         },
     )
     temp = resp.get("citations",[])
-    s3_uri_list =[]
+    temp_list =[]
+
     for citation in temp:
-        s3_uri_list.append(citation.get("retrieveRefenrce", {})
-        .get("location",{})
-        .get("s3Location",{})
-        .get("uri"))
+        temp_list.append(citation.get("retrieveRefenrce", {})
+        .get("metadata",{}))
+        
         
 
 
@@ -95,7 +95,9 @@ def query(question):
 
         return f"https://{bucket}.s3.us-west-2.amazonaws.com/{key}"
 
-    s3_uri_list = [s3uri_to_https(uri) for uri in s3_uri_list]
+    # s3_uri_list = [s3uri_to_https(uri) for uri in s3_uri_list]
 
     
-    return [resp.get("output", {}).get("text"),s3_uri_list]
+    # return [resp.get("output", {}).get("text"),s3_uri_list]
+    print(temp_list)
+    return  [resp.get("output", {}).get("text"),temp_list]
