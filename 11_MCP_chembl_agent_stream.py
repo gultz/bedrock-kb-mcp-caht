@@ -23,6 +23,8 @@ if not logger.hasHandlers():           # 중복 Handler 방지
     logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 
+#temp
+
 ###############################################################################
 # 1. stdout / stderr 를 Queue 로 tee 하기 위한 래퍼
 ###############################################################################
