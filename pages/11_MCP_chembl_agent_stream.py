@@ -8,11 +8,11 @@ import mcp_agent                       # <- run_chembl_agent(query)
 import logging, sys, io, queue, threading, time, contextlib
 
 # --- logger for every run_chembl_agent 내부 print/logger 잡기 ---------------
-LOGGER_NAME = "CHEMBL_MCP_STREAM"
-logger = logging.getLogger(LOGGER_NAME)
-if not logger.hasHandlers():           # 중복 Handler 방지
+logger = logging.getLogger("CHEMBL_MCP_STREAM")  # 예: "MCP" 또는 "KB"
+if not logger.hasHandlers():
     handler = logging.StreamHandler(sys.stderr)
-    handler.setFormatter(logging.Formatter('%(filename)s:%(lineno)d | %(message)s'))
+    formatter = logging.Formatter('%(filename)s:%(lineno)d | %(message)s')
+    handler.setFormatter(formatter)
     logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 
