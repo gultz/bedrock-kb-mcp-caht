@@ -2,6 +2,7 @@ import streamlit as st
 import logging
 import sys
 import kb_client
+import os
 
 logger = logging.getLogger("KB")  # 예: "MCP" 또는 "KB"
 if not logger.hasHandlers():
@@ -47,5 +48,16 @@ if query:
     with st.expander("PDF URI"):
         for s3_uri in s3_uri_list:
             pdf_url = s3_uri
-            st.markdown(f"({pdf_url})")
-            # st.markdown(f'<iframe src="{pdf_url}" width="100%" height="600px"></iframe>', unsafe_allow_html=True)
+
+            filename = os.path.basename(pdf_url)
+
+            st.markdown(f"- [{filename}]({pdf_url})")            
+
+            st.markdown(
+                    f'''
+                    <div style="width: 100%; max-width: 800px; margin: auto;">
+                        <iframe src="{pdf_url}" style="width: 100%; height: 400px; border: 1px solid #ccc;" frameborder="0"></iframe>
+                    </div>
+                    ''',
+                    unsafe_allow_html=True
+                )
