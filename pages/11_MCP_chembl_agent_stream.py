@@ -49,15 +49,14 @@ st.set_page_config(page_title="CHEMBL-MCP demo", page_icon="🔬")
 st.title("💬 CHEMBL MCP demo — live tool-usage log")
 
 # --- 세션 상태: 대화 히스토리 ----------------------------------------------
-if "chembl_chat_history" not in st.session_state:
-    # 리스트의 각 원소는 (role, text)
-    st.session_state.chembl_chat_history = [
-        ("assistant", "안녕하세요, 무엇이 궁금하세요?"),
+if "CHEMBL_STREAM_MCP_messages" not in st.session_state:
+    st.session_state["CHEMBL_STREAM_MCP_messages"] = [
+        {"role": "assistant", "content": "안녕하세요, 무엇이 궁금하세요?"}
     ]
 
 # --- 과거 메시지 렌더 --------------------------------------------------------
-for msg in st.session_state.chembl_chat_history:
-    st.chat_message(msg["role"]).write(msg["context"])
+for msg in st.session_state.CHEMBL_STREAM_MCP_messages:
+    st.chat_message(msg["role"]).write(msg["content"])
 
 # --- 사용자 입력 ------------------------------------------------------------
 query = st.chat_input("메시지를 입력하세요")
