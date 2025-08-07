@@ -69,9 +69,6 @@ if query:
     # 3-2. 질문-단위 전용 container 만들기
                     # 묶음
     log_box     = st.empty()
-
-    answer_box  = container.chat_message("assistant")
-
     # 3-3. 큐 & 이벤트 & worker-thread 준비
     q          = queue.Queue()
     done_flag  = threading.Event()
