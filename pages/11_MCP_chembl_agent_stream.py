@@ -62,7 +62,7 @@ for msg in st.session_state.CHEMBL_STREAM_MCP_messages:
 query = st.chat_input("메시지를 입력하세요")
 if query:
     # 3-1. 히스토리에 추가 & 즉시 출력
-    st.session_state.CHEMBL_MCP_messages.append({"role": "user", "content": query})
+    st.session_state.CHEMBL_STREAM_MCP_messages.append({"role": "user", "content": query})
 
 
     st.chat_message("user").write(query)
@@ -97,6 +97,7 @@ if query:
     # 3-5. 최종 로그 한 번 더 그리기
     log_box.code("".join(lines), language="")
 
+    log_box.empty()
     
 
     # 3-6. '✅' 이후가 정답
@@ -111,7 +112,7 @@ if query:
     st.chat_message("assistant").write(answer_text)
 
     # Session 메세지 저장
-    st.session_state.chembl_chat_history.append({"role": "assistant", "content": answer})
+    st.session_state.CHEMBL_STREAM_MCP_messages.append({"role": "assistant", "content": answer})
     
     
     # # 3-7. 답변 chat-bubble + 히스토리 저장
