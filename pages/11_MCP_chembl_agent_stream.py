@@ -92,11 +92,8 @@ if query:
 
     # 3-5. 최종 로그 한 번 더 그리기
     log_box.code("".join(lines), language="")
-    time.sleep(5)
+    time.sleep(1)
 
-    # log_box.empty()
-
-    # 3-6. '✅' 이후가 정답
     answer_text = answer_q.get() if not answer_q.empty() else "⚠️ No answer!"
    
     st.chat_message("assistant").write(answer_text)
