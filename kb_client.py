@@ -77,13 +77,23 @@ def query(question):
             }
         },
     )
-    temp = resp.get("citations",[])
-    temp_list =[]
+    citations = resp.get("citations", [])
+    meta_list  = []
+    s3_uri_list = []
 
-    for citation in temp:
-        temp_list.append(citation.get("retrieveRefenrce", {})
-        .get("metadata",{}))
-        
+    for c in citations:
+        for ref in c.get("retrievedReferences", []):
+            # 1) metadata
+            meta_list.append(ref.get("metadata", {}))
+
+            # 2) S3 URI (있을 때만)
+            s3_uri = (
+                ref.get("location", {})
+                .get("s3Location", {})
+                .get("uri")
+            )
+            if s3_uri:
+                s3_uri_list.append(s3uri_to_https(s3_uri))
         
 
 
@@ -99,5 +109,6 @@ def query(question):
 
     
     # return [resp.get("output", {}).get("text"),s3_uri_list]
-    print(temp_list)
-    return  [resp.get("output", {}).get("text"),temp_list]
+    print(meta_list)
+    print(s3_uri_list)
+    return  [resp.get("output", {}).get("text")]
