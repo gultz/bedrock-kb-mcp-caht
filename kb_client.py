@@ -36,12 +36,17 @@ def query(question):
 
     # 2) 히트들을 하나의 문자열로 합치기 (섹션 구분 추가 권장)
     chunks = []
+    s3_uri_list = []            # ← 미리 빈 리스트 준비
+
     for i, hit in enumerate(knn["hits"]["hits"], 1):
         txt = (hit["_source"].get(TEXT_FIELD) or "").strip()
         if not txt:
             continue
         src = hit["_source"].get("x-amz-bedrock-kb-source-uri") or hit["_id"]
         chunks.append(f"[Source {i}] {src}\n{txt}")
+
+        if str(src).startswith("s3://"):
+        s3_uri_list.append(src)
 
     merged = "\n\n----\n\n".join(chunks)
     payload = {
@@ -77,26 +82,7 @@ def query(question):
             }
         },
     )
-    citations = resp.get("citations", [])
-    meta_list  = []
-    s3_uri_list = []
-
-    for c in citations:
-        for ref in c.get("retrievedReferences", []):
-            # 1) metadata
-            meta_list.append(ref.get("metadata", {}))
-
-            # 2) S3 URI (있을 때만)
-            s3_uri = (
-                ref.get("location", {})
-                .get("s3Location", {})
-                .get("uri")
-            )
-            if s3_uri:
-                s3_uri_list.append(s3uri_to_https(s3_uri))
-        
-
-
+    
     def s3uri_to_https(s3uri: str) -> str:
         
         # "s3://bucket/key" → "bucket", "key"
@@ -105,10 +91,13 @@ def query(question):
 
         return f"https://{bucket}.s3.us-west-2.amazonaws.com/{key}"
 
-    # s3_uri_list = [s3uri_to_https(uri) for uri in s3_uri_list]
+        
 
     
     # return [resp.get("output", {}).get("text"),s3_uri_list]
-    print(meta_list)
+    
     print(s3_uri_list)
-    return  [resp.get("output", {}).get("text")]
+    
+    s3_uri_list = [s3uri_to_https(uri) for uri in s3_uri_list]
+    
+    return  [resp.get("output", {}).get("text"), s3_uri_list]
