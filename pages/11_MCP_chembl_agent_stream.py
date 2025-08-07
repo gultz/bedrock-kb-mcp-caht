@@ -86,7 +86,7 @@ if query:
         try:
             line = log_q.get_nowait()
             lines.append(line)
-            log_box.code("\n".join(lines))   # 실시간
+            log_box.code("".join(lines))   # 실시간
         except queue.Empty:
             time.sleep(0.1)
 
