@@ -35,10 +35,16 @@ if query:
     st.chat_message("user").write(query)
 
     # UI 출력
-    answer = kb_client.query(query)
-    
-    
-    st.chat_message("assistant").write(answer)
+    temp = kb_client.query(query)
+    answer = temp[0]
+    s3_uri_list = temp[1]
+        
 
     # Session 메세지 저장 (전체 결과 저장)
     st.session_state.kb_messages.append({"role": "assistant", "content": answer})
+
+    st.chat_message("assistant").write(answer)
+    with st.expander("PDF URI"):
+        for s3_uri in s3_uri_list:
+            pdf_url = s3_uri
+            st.markdown(f'<iframe src="{pdf_url}" width="100%" height="600px"></iframe>', unsafe_allow_html=True)

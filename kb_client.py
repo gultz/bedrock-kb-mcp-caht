@@ -77,4 +77,24 @@ def query(question):
             }
         },
     )
-    return resp.get("output", {}).get("text")
+    temp = resp.get("citations",[])
+    s3_uri_list =[]
+    for citation in temp:
+        s3_uri_list.append(citation.get("retrieveRefenrce", {}).get("location",{}).get("s3Location",{}).get("uri"))
+        
+
+
+    def s3uri_to_https(s3uri: str) -> str:
+        if not s3uri.startswith("s3://"):
+            raise ValueError("Invalid S3 URI")
+        
+        # "s3://bucket/key" → "bucket", "key"
+        bucket_and_key = s3uri[len("s3://"):]  # "my-bucket/path/to/file.txt"
+        bucket, key = bucket_and_key.split("/", 1)  # 무조건 "/" 포함된다고 가정
+
+        return f"https://{bucket}.s3.us-west-2.amazonaws.com/{key}"
+
+    s3_uri_list = [s3uri_to_https(uri) for uri in s3_uri_list]
+
+    
+    return [resp.get("output", {}).get("text"),s3_uri_list]
