@@ -1,11 +1,4 @@
 # pages/chembl_mcp_live.py
-"""
-Streamlit page that
-  • runs mcp_agent.run_chembl_agent(query)  (동기)
-  • 캡쳐되는 stdout/stderr 를 한-줄-한-줄 화면에 실시간으로 표시
-  • 최종 답변은 예쁜 chat-bubble 로 출력
-  • 질문-답변-로그 묶음을 계속 화면에 남겨 둠
-"""
 
 ###############################################################################
 # 0. 기본 import & 로깅
@@ -63,19 +56,24 @@ if "chembl_chat_history" not in st.session_state:
     ]
 
 # --- 과거 메시지 렌더 --------------------------------------------------------
-for role, text in st.session_state.chembl_chat_history:
-    st.chat_message(role).write(text)
+for msg in st.session_state.chembl_chat_history:
+    st.chat_message(msg[role]).write(msg[context])
 
 # --- 사용자 입력 ------------------------------------------------------------
 query = st.chat_input("메시지를 입력하세요")
 if query:
     # 3-1. 히스토리에 추가 & 즉시 출력
-    st.session_state.chembl_chat_history.append(("user", query))
+    st.session_state.CHEMBL_MCP_messages.append({"role": "user", "content": query})
+
+
     st.chat_message("user").write(query)
 
     # 3-2. 질문-단위 전용 container 만들기
-    container   = st.container()                   # 묶음
-    log_box     = container.empty()                # 실시간 로그
+    container   = st.container(border = True)   
+                    # 묶음
+
+    log_box     = st.empty()
+
     answer_box  = container.chat_message("assistant")
 
     # 3-3. 큐 & 이벤트 & worker-thread 준비
@@ -100,6 +98,8 @@ if query:
     # 3-5. 최종 로그 한 번 더 그리기
     log_box.code("".join(lines), language="")
 
+    
+
     # 3-6. '✅' 이후가 정답
     answer_text = ""
     for idx, ln in enumerate(lines):
@@ -107,7 +107,15 @@ if query:
             answer_text = "".join(lines[idx + 1:]).lstrip()
             break
 
-    # 3-7. 답변 chat-bubble + 히스토리 저장
-    if answer_text:
-        answer_box.write(answer_text)
-        st.session_state.chembl_chat_history.append(("assistant", answer_text))
+
+
+    st.chat_message("assistant").write(answer_text)
+
+    # Session 메세지 저장
+    st.session_state.chembl_chat_history.append({"role": "assistant", "content": answer})
+    
+    
+    # # 3-7. 답변 chat-bubble + 히스토리 저장
+    # if answer_text:
+    #     answer_box.write(answer_text)
+    #     st.session_state.chembl_chat_history.append(("assistant", answer_text))
