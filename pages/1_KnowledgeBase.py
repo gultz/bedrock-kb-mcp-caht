@@ -47,5 +47,5 @@ if query:
     with st.expander("PDF URI"):
         for s3_uri in s3_uri_list:
             pdf_url = s3_uri
-            st.markdown(f"[PDF 다운로드]({pdf_url})")
+            st.markdown(f"({pdf_url})")
             # st.markdown(f'<iframe src="{pdf_url}" width="100%" height="600px"></iframe>', unsafe_allow_html=True)
