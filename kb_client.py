@@ -85,8 +85,6 @@ def query(question):
 
 
     def s3uri_to_https(s3uri: str) -> str:
-        if not s3uri.startswith("s3://"):
-            raise ValueError("Invalid S3 URI")
         
         # "s3://bucket/key" → "bucket", "key"
         bucket_and_key = s3uri[len("s3://"):]  # "my-bucket/path/to/file.txt"
