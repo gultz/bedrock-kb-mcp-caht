@@ -15,7 +15,7 @@ import mcp_agent                       # <- run_chembl_agent(query)
 import logging, sys, io, queue, threading, time, contextlib
 
 # --- logger for every run_chembl_agent 내부 print/logger 잡기 ---------------
-LOGGER_NAME = "CHEMBL_MCP"
+LOGGER_NAME = "CHEMBL_MCP_STREAM"
 logger = logging.getLogger(LOGGER_NAME)
 if not logger.hasHandlers():           # 중복 Handler 방지
     handler = logging.StreamHandler(sys.stderr)
@@ -23,8 +23,7 @@ if not logger.hasHandlers():           # 중복 Handler 방지
     logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 
-#temp
-
+#te
 ###############################################################################
 # 1. stdout / stderr 를 Queue 로 tee 하기 위한 래퍼
 ###############################################################################
