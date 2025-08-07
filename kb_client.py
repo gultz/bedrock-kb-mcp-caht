@@ -80,7 +80,10 @@ def query(question):
     temp = resp.get("citations",[])
     s3_uri_list =[]
     for citation in temp:
-        s3_uri_list.append(citation.get("retrieveRefenrce", {}).get("location",{}).get("s3Location",{}).get("uri"))
+        s3_uri_list.append(citation.get("retrieveRefenrce", {})
+        .get("location",{})
+        .get("s3Location",{})
+        .get("uri"))
         
 
 
