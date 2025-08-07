@@ -32,14 +32,14 @@ class StreamToQueue(io.TextIOBase):
 ###############################################################################
 # 2. Agent 를 백그라운드에서 돌리면서 로그를 Queue 로 전달
 ###############################################################################
-def agent_worker(query: str, q: queue.Queue, done_evt: threading.Event):
-    buf = StreamToQueue(q)
+def agent_worker(query: str, log_q: queue.Queue, answer_q: queue.Queue, done_evt: threading.Event):
+    buf = StreamToQueue(log_q)
     with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
         try:
             answer = mcp_agent.run_chembl_agent(query)
-            q.put(f"\n✅ **Answer returned**\n{answer}\n")
+            answer_q.put(answer)
         except Exception as exc:
-            q.put(f"\n❌ Error: {exc}\n")
+            log_q.put(f"\n❌ Error: {exc}\n")
     done_evt.set()
 
 ###############################################################################
@@ -70,21 +70,23 @@ if query:
                     # 묶음
     log_box     = st.empty()
     # 3-3. 큐 & 이벤트 & worker-thread 준비
-    q          = queue.Queue()
+    log_q          = queue.Queue()
+    answer_q          = queue.Queue()
     done_flag  = threading.Event()
+
     threading.Thread(
         target=agent_worker,
-        args=(query, q, done_flag),
+        args=(query, log_q, answer_q, done_flag),
         daemon=True,
     ).start()
 
     # 3-4. polling 으로 큐 읽어와서 로그 갱신
     lines: list[str] = []
-    while not (done_flag.is_set() and q.empty()):
+    while not (done_flag.is_set() and log_q.empty()):
         try:
-            line = q.get_nowait()
+            line = log_q.get_nowait()
             lines.append(line)
-            log_box.code("".join(lines), language="")   # 실시간
+            log_box.code("\n".join(lines))   # 실시간
         except queue.Empty:
             time.sleep(0.1)
 
@@ -92,16 +94,11 @@ if query:
     log_box.code("".join(lines), language="")
     time.sleep(5)
 
-    log_box.empty()
-    
+    # log_box.empty()
 
     # 3-6. '✅' 이후가 정답
-    answer_text = ""
-    for idx, ln in enumerate(lines):
-        if ln.startswith("✅"):
-            answer_text = "".join(lines[idx + 1:]).lstrip()
-            break
-
+    answer_text = answer_q.get() if not answer_q.empty() else "⚠️ No answer!"
+   
     st.chat_message("assistant").write(answer_text)
 
     # Session 메세지 저장
