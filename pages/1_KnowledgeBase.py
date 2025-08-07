@@ -51,13 +51,18 @@ if query:
 
             filename = os.path.basename(pdf_url)
 
-            st.markdown(f"- [{filename}]({pdf_url})")            
-
+            # 하이퍼링크: PDF 이름을 누르면 다운로드
             st.markdown(
-                    f'''
-                    <div style="width: 100%; max-width: 800px; margin: auto;">
-                        <iframe src="{pdf_url}" style="width: 100%; height: 400px; border: 1px solid #ccc;" frameborder="0"></iframe>
-                    </div>
-                    ''',
-                    unsafe_allow_html=True
-                )
+                f'<a href="{pdf_url}" target="_blank" style="text-decoration: none; color: #1f77b4;">📎 {filename}</a>',
+                unsafe_allow_html=True
+            )
+
+            # PDF 미리보기 (반응형 iframe)
+            st.markdown(
+                f'''
+                <div style="width: 100%; max-width: 700px; margin: 1em auto;">
+                    <iframe src="{pdf_url}" style="width: 100%; height: 350px; border: 1px solid #ccc;" frameborder="0"></iframe>
+                </div>
+                ''',
+                unsafe_allow_html=True
+            )
