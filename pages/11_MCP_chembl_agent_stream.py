@@ -96,6 +96,7 @@ if query:
 
     # 3-5. 최종 로그 한 번 더 그리기
     log_box.code("".join(lines), language="")
+    time.sleep(5)
 
     log_box.empty()
     
