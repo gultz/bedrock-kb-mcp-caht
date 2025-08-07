@@ -46,7 +46,7 @@ def query(question):
         chunks.append(f"[Source {i}] {src}\n{txt}")
 
         if str(src).startswith("s3://"):
-        s3_uri_list.append(src)
+            s3_uri_list.append(src)
 
     merged = "\n\n----\n\n".join(chunks)
     payload = {
