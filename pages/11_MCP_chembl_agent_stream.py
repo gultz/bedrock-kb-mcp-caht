@@ -57,7 +57,7 @@ if "chembl_chat_history" not in st.session_state:
 
 # --- 과거 메시지 렌더 --------------------------------------------------------
 for msg in st.session_state.chembl_chat_history:
-    st.chat_message(msg[role]).write(msg[context])
+    st.chat_message(msg["role"]).write(msg["context"])
 
 # --- 사용자 입력 ------------------------------------------------------------
 query = st.chat_input("메시지를 입력하세요")
