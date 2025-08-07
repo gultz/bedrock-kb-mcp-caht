@@ -36,9 +36,9 @@ if query:
     st.chat_message("user").write(query)
 
     # UI 출력
-    temp = kb_client.query(query)
-    answer = temp[0]
-    s3_uri_list = temp[1]
+    param = kb_client.query(query)
+    answer = param[0]
+    s3_uri_list = param[1]
         
 
     # Session 메세지 저장 (전체 결과 저장)
@@ -54,15 +54,5 @@ if query:
             # 하이퍼링크: PDF 이름을 누르면 다운로드
             st.markdown(
                 f'<a href="{pdf_url}" target="_blank" style="text-decoration: none; color: #1f77b4;">📎 {filename}</a>',
-                unsafe_allow_html=True
-            )
-
-            # PDF 미리보기 (반응형 iframe)
-            st.markdown(
-                f'''
-                <div style="width: 100%; max-width: 700px; margin: 1em auto;">
-                    <iframe src="{pdf_url}" style="width: 100%; height: 350px; border: 1px solid #ccc;" frameborder="0"></iframe>
-                </div>
-                ''',
                 unsafe_allow_html=True
             )

@@ -92,12 +92,10 @@ def query(question):
         return f"https://{bucket}.s3.us-west-2.amazonaws.com/{key}"
 
         
-
-    
-    # return [resp.get("output", {}).get("text"),s3_uri_list]
+       # return [resp.get("output", {}).get("text"),s3_uri_list]
     
     print(s3_uri_list)
     
-    s3_url_list = list({s3uri_to_https(uri) for uri in s3_uri_list})    
-    
+    s3_uri_list = list({s3uri_to_https(uri) for uri in s3_uri_list})    
+
     return  [resp.get("output", {}).get("text"), s3_uri_list]
