@@ -64,13 +64,10 @@ if query:
     # 3-1. 히스토리에 추가 & 즉시 출력
     st.session_state.CHEMBL_STREAM_MCP_messages.append({"role": "user", "content": query})
 
-
     st.chat_message("user").write(query)
 
     # 3-2. 질문-단위 전용 container 만들기
-    container   = st.container(border = True)   
                     # 묶음
-
     log_box     = st.empty()
 
     answer_box  = container.chat_message("assistant")
@@ -107,8 +104,6 @@ if query:
         if ln.startswith("✅"):
             answer_text = "".join(lines[idx + 1:]).lstrip()
             break
-
-
 
     st.chat_message("assistant").write(answer_text)
 
