@@ -110,6 +110,7 @@ def run_chembl_agent(query: str) -> str:
         1. Extract either the compound name or target name from the query
         2. Search ChEMBL with the name
         3. Return structured, well-formatted compound information with SMILES and activity information for the name
+        4. Anwser should be in Korean
         """
             agent = Agent(
                 tools=tools,
@@ -140,6 +141,7 @@ def run_uniprot_agent(query: str) -> str:
             3. Query the UniProt REST API using the correct endpoint based on the tool and context.
             4. Return well-structured and informative results, including protein names, UniProt IDs, gene symbols, functions, and associated annotations.
             5. If applicable, include links to UniProt entries and summary insights from comparative genomics or systems biology perspectives.
+            6. Anwser should be in Korean
 
             You support 26 advanced bioinformatics tools designed for AI assistants and MCP clients. These tools allow deep protein analysis, sequence comparison, domain prediction, and pathway exploration directly through the UniProt knowledgebase.
 
@@ -176,6 +178,7 @@ def run_OpenTargets_agent(query: str) -> str:
                 - Deliver detailed gene/protein or disease information
                 3. Rely on the latest Open Targets API data (live access) to generate accurate, evidence-based answers.
                 4. Return results in a well-structured and concise format with scientific clarity.
+                5. Anwser should be in Korean
 
                 You have access to the following tools:
                 🎯 Target Search - gene names, symbols, descriptions  
@@ -214,6 +217,7 @@ def run_Reactome_agent(query: str) -> str:
                 2. Select the appropriate tool to query Reactome's live API and return structured results.
                 3. Provide detailed, up-to-date pathway and molecular data to support research in genomics, disease mechanisms, and biochemical processes.
                 4. Return information in a clear, organized, and scientifically accurate format suitable for bioinformatics researchers.
+                5. Anwser should be in Korean   
 
                 You have access to the following tools:
                 🔍 Pathway Search – Search pathways by name, biological process, or keywords  
@@ -253,6 +257,7 @@ Your responsibilities include:
 1. Extract the relevant protein names, identifiers, or species from the user's query.
 2. Select the appropriate tool to interact with the STRING API using Model Context Protocol (MCP).
 3. Return structured results in a clear, concise, and scientifically meaningful format to support bioinformatics and systems biology research.
+4. Anwser should be in Korean
 
 You have access to the following tools:
 🧬 get_protein_interactions – Retrieve direct interaction partners for a given protein, including confidence scores and evidence types  
@@ -293,9 +298,9 @@ def run_GeneOntology_agent(query: str) -> str:
             tools = client.list_tools_sync()
             system_prompt = """
 You are a specialized Gene Ontology (GO) research assistant operating through a Model Context Protocol (MCP) interface. Your responsibilities include:
-
+0. Anwser should be in Korean
 1. Understanding user queries related to Gene Ontology terms, annotations, and relationships.
-2. Extracting relevant keywords such as GO IDs, gene names, or biological functions.
+2. Extracting relevant keywords such as GO IDs, gene names, or biological functions.  
 3. Performing the appropriate API operations to:
     - Search or lookup GO terms by keyword, ID, or name.
     - Explore term definitions and hierarchical relationships (parents/children).
@@ -358,6 +363,7 @@ Your capabilities include:
 Respond in structured format (JSON or bullet points), and always include CID or identifiers when possible. If input is ambiguous (e.g. "aspirin"), attempt resolution through `search_compounds` before proceeding. For bulk queries, use `batch_compound_lookup`.
 
 Default to English chemical nomenclature. Be concise but detailed. If compound or assay is not found, suggest alternatives.
+Answer should be in Korean
 """
             agent = Agent(
                 tools=tools,
@@ -409,6 +415,7 @@ Your core capabilities include:
 ⚠️ Always include the PDB ID in your response if available, and format the output in clean structured blocks or JSON-like formatting when possible.
 
 Your responses should be concise, accurate, and tailored for bioinformatics or structural biology researchers.
+Answer should be in Korean
 """
             agent = Agent(
                 tools=tools,
@@ -466,6 +473,7 @@ Your capabilities include:
 - Ensure scientific clarity in tone while staying concise.
 
 You respond like a biomedical research assistant trained for precision and utility.
+Answer should be in Korean
 """
             agent = Agent(
                 tools=tools,
