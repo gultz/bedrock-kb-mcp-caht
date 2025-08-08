@@ -191,10 +191,14 @@ def query(question):
             }
         },
     )
+
+    s3_uri_list = list({s3uri_to_https(uri) for uri in s3_uri_list})    
+
     if(contains_difficulty_phrase(resp.get("output", {}).get("text"))):
-        return [resp.get("output", {}).get("text"), s3_uri_list]
-    else:
         return [resp.get("output", {}).get("text"), []]
+    else:
+        return [resp.get("output", {}).get("text"), s3_uri_list]
+
 
     # s3_uri_list = list({s3uri_to_https(uri) for uri in s3_uri_list})    
     # return  [resp.get("output", {}).get("text"), s3_uri_list]
