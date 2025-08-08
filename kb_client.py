@@ -53,6 +53,28 @@ def query(question):
         }
     }
 
+    PROMPT_CHATBOT_HYBRID = (
+    "역할: 너는 의학/제약 도메인 QA 챗봇이다.\n"
+    "목표: 아래 [검색 결과]를 근거로 답하되, 이해를 돕는 비수치 배경설명을 짧게 제공할 수 있다.\n\n"
+    "절차:\n"
+    "1) 질문이 모호하면 확인 질문 한 개만 제시하고 중단.\n"
+    "2) 명확하면 답변 작성.\n\n"
+    "규칙:\n"
+    "A) 수치·연도·효능·안전성 등 구체적 사실은 [S#] 인용 필수.\n"
+    "B) '배경지식' 섹션에는 정의/맥락 등 일반 설명만(숫자·연구결과 금지).\n"
+    "C) 근거 부족 시 '자료 불충분' + 추가 필요정보 1–2줄.\n"
+    "D) 상충 정보는 양쪽 기술 + 불확실함 명시.\n"
+    "E) 한국어 간결체, 5–9문장.\n\n"
+    "출력 형식:\n"
+    "[답변] 3–6문장. 필요한 문장에 [S#] 인용.\n"
+    "[배경지식] 1–3문장 (인용·수치 금지) — 필요 시만.\n"
+    "[참고 S3]\n"
+    "- [S1] s3://...\n"
+    "- [S2] s3://...\n\n"
+    "[검색 결과]\n$search_results$\n\n[답변]"
+    )
+
+
 
     # 3) RnG 호출 (EXTERNAL_SOURCES는 sources 한 개만!)
     resp = bedrock_agent_runtime_client.retrieve_and_generate(
@@ -64,11 +86,7 @@ def query(question):
                 "sources": [payload],  # <= 반드시 길이 1
                 "generationConfiguration": {
                     "promptTemplate": {
-                        "textPromptTemplate": (
-                            "의학/제약 논문 맥락에서, 아래 검색결과만 근거로 그리고 답변에 무슨 논문을 참고해서 답을 얻었는지 S3주소도 포함시키고 논문 이름도 포함시켜라."
-                            "명확하고 간결한 한국어 답변을 작성하라.\n\n"
-                            "[검색 결과]\n$search_results$\n\n[답변]"
-                        )
+                        "textPromptTemplate": PROMPT_CHATBOT_HYBRID
                     },
                     "inferenceConfig": {
                         "textInferenceConfig": {"temperature": 0, "topP": 1, "maxTokens": 1024}
