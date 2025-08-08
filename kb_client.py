@@ -1,6 +1,7 @@
 import json, boto3, base64
 from opensearchpy import OpenSearch, RequestsHttpConnection
 from opensearchpy import AWSV4SignerAuth
+import re, os
 
 REGION = "us-west-2"
 AOSS_HOST = "fo3v57rqvibkb306p82j.us-west-2.aoss.amazonaws.com"
