@@ -58,6 +58,15 @@ def general_chat(question: str) -> str:
     )
     return json.loads(resp["body"].read())["content"][0]["text"]
 
+def contains_difficulty_phrase(answer: str) -> bool:
+    """
+    답변에 '어렵습니다'라는 단어가 포함되어 있으면 True 반환.
+    대소문자 구분 없이 체크.
+    """
+    if not answer:
+        return False
+    return "어렵습니다" in answer
+
 #----------------------------main------------------
 
 # 간단 토크나이저 & 겹침 계산 (영문/한글 알파뉴메릭)
@@ -146,7 +155,7 @@ def query(question):
     "1) 질문이 모호하면 확인 질문 한 개만 제시하고 중단.\n"
     "2) 명확하면 답변 작성.\n\n"
     "규칙:\n"
-    "0) 답변이 어려울 경우 모호한 답변이나 이상한 질문이 나온다면, 어렵습니다라는 단어는 반드시 포함하도록 설정 "
+    "0) 질문이 모호하여 답변이 어려울 경우, 혹은 이상한 질문이라면, 답변에 반드시 '어렵습니다'라는 단어를 포함.\n"
     "A) 수치·연도·효능·안전성 등 구체적 사실은 [S#] 인용 필수.\n"
     "B) '배경지식' 섹션에는 정의/맥락 등 일반 설명만(숫자·연구결과 금지).\n"
     "C) 근거 부족 시 '자료 불충분' + 추가 필요정보 1–2줄.\n"
@@ -182,7 +191,11 @@ def query(question):
             }
         },
     )
+    if(contains_difficulty_phrase(resp.get("output", {}).get("text"))):
+        return [resp.get("output", {}).get("text"), s3_uri_list]
+    else:
+        return [resp.get("output", {}).get("text"), []]
 
-    s3_uri_list = list({s3uri_to_https(uri) for uri in s3_uri_list})    
-    return  [resp.get("output", {}).get("text"), s3_uri_list]
+    # s3_uri_list = list({s3uri_to_https(uri) for uri in s3_uri_list})    
+    # return  [resp.get("output", {}).get("text"), s3_uri_list]
     
