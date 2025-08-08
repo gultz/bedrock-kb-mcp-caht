@@ -137,9 +137,9 @@ def query(question):
     "출력 형식:\n"
     "[Answer]\n 3–8문장. 필요한 문장에 [S#] 인용.\n"
     "[Background] 1–3문장 (인용·수치 금지) — 필요 시만.\n"
-    "[S3 Reference]\n"
-    "- [S1] s3://...\n"
-    "- [S2] s3://...\n\n"
+    "[Reference]\n"
+    "- [1] s3://...\n"
+    "- [2] s3://...\n\n"
     "[검색 결과]\n$search_results$\n\n[답변]"
     )
 
