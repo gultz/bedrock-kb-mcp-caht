@@ -42,7 +42,7 @@ def is_chitchat(q: str) -> bool:
 def general_chat(question: str) -> str:
 # 일반 대화 모드: system 프롬프트로 톤만 통제
     resp = br.invoke_model(
-        modelId="anthropic.claude-3-7-sonnet-20250219-v1:0",
+        modelId="arn:aws:bedrock:us-west-2:170483442401:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0",
         body=json.dumps({
             "anthropic_version": "bedrock-2023-05-31",
             "max_tokens": 512,
