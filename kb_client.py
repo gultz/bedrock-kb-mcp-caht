@@ -46,6 +46,22 @@ def query(question):
 
         if str(src).startswith("s3://"):
             s3_uri_list.append(src)
+    
+    if not chunks:
+        resp = br.invoke_model(
+            modelId="anthropic.claude-3-7-sonnet-20250219-v1:0",
+            body=json.dumps({
+                "anthropic_version": "bedrock-2023-05-31",
+                "max_tokens": 512,
+                "temperature": 0.7,
+                "top_p": 1,
+                "messages": [
+                    {"role": "user", "content": [{"type": "text", "text": question}]}
+                ]
+            })
+        )
+        output_text = json.loads(resp["body"].read())["content"][0]["text"]
+        return [output_text, []]  # S3 없음
 
     merged = "\n\n----\n\n".join(chunks)
     payload = {
@@ -72,7 +88,7 @@ def query(question):
     "출력 형식:\n"
     "[Answer]\n 3–8문장. 필요한 문장에 [S#] 인용.\n"
     "[Background] 1–3문장 (인용·수치 금지) — 필요 시만.\n"
-    "[S3 References]\n"
+    "[S3 Reference]\n"
     "- [S1] s3://...\n"
     "- [S2] s3://...\n\n"
     "[검색 결과]\n$search_results$\n\n[답변]"
