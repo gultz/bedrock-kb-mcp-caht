@@ -20,10 +20,65 @@ bedrock_agent_runtime_client = session.client("bedrock-agent-runtime", region_na
 
 MODEL_ARN = "arn:aws:bedrock:us-west-2:170483442401:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0"
 
+#--------------------------------
+
 def embed_v2(text: str):
     r = br.invoke_model(modelId="amazon.titan-embed-text-v2:0",
                         body=json.dumps({"inputText": text}))
     return json.loads(r["body"].read())["embedding"]
+
+
+def s3uri_to_https(s3uri: str) -> str:
+    bucket_and_key = s3uri[len("s3://"):]
+    bucket, key = bucket_and_key.split("/", 1)
+    return f"https://{bucket}.s3.{REGION}.amazonaws.com/{key}"
+
+
+def is_chitchat(q: str) -> bool:
+    # 아주 얕은 인사/잡담은 KB 우회
+    return bool(re.match(r'^(안녕|하이|hello|hi|ㅎㅇ|뭐해|날씨|요즘)', q.strip(), re.I))
+
+def general_chat(question: str) -> str:
+# 일반 대화 모드: system 프롬프트로 톤만 통제
+    resp = br.invoke_model(
+        modelId="anthropic.claude-3-7-sonnet-20250219-v1:0",
+        body=json.dumps({
+            "anthropic_version": "bedrock-2023-05-31",
+            "max_tokens": 512,
+            "temperature": 0.7,
+            "top_p": 1,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": [{
+                        "type": "text",
+                        "text": "You are a friendly, concise Korean/English chatbot. Keep replies short, natural, and helpful."
+                    }]
+                },
+                {
+                    "role": "user",
+                    "content": [{"type": "text", "text": question}]
+                }
+            ]
+        })
+    )
+    return json.loads(resp["body"].read())["content"][0]["text"]
+
+#----------------------------main------------------
+
+# 간단 토크나이저 & 겹침 계산 (영문/한글 알파뉴메릭)
+_token_pat = re.compile(r"[A-Za-z0-9가-힣]+")
+
+def tokens(s: str):
+    return set(t.lower() for t in _token_pat.findall(s))
+
+def overlap_count(q: str, t: str) -> int:
+    qs, ts = tokens(q), tokens(t)
+    return len(qs & ts)
+
+#--------------------------------
+
+
 
 def query(question):
     # 1) 질문을 v2로 임베딩
@@ -33,35 +88,54 @@ def query(question):
         index=INDEX,
         body={"size": 5, "query": {"knn": {VEC_FIELD: {"vector": q_vec, "k": 5}}}}
     )
+    hits = knn["hits"]["hits"]
 
-    # 2) 히트들을 하나의 문자열로 합치기 (섹션 구분 추가 권장)
+
+    # 2) 잡담이면 즉시 일반 모드
+    if is_chitchat(question):
+        return [general_chat(question), []]
+
+    # 3) 유효성 기준값 (필요시 조정)
+    MIN_SCORE   = 0.25     # 시작점
+    MIN_CHARS   = 160      # 시작점
+    MARGIN_MIN  = 1.05     # top1/top2 마진
+    OVERLAP_MIN = 3        # 쿼리-스니펫 공통 토큰
+
+    # top1/top2 마진 계산 (없으면 1.0로 처리)
+    scores = sorted([h.get("_score", 0.0) for h in hits], reverse=True)
+    top1 = scores[0] if scores else 0.0
+    top2 = scores[1] if len(scores) > 1 else 0.0
+    margin_ok = (top2 == 0.0) or ((top1 / (top2 + 1e-6)) >= MARGIN_MIN)
+
+    # 4) 히트 필터링 (조건 4개 중 2개 이상 만족 시 채택)
     chunks = []
-    s3_uri_list = []            # ← 미리 빈 리스트 준비
-    for i, hit in enumerate(knn["hits"]["hits"], 1):
+    s3_uri_list = []
+
+    for i, hit in enumerate(hits, 1):
+        score = hit.get("_score", 0.0)
         txt = (hit["_source"].get(TEXT_FIELD) or "").strip()
         if not txt:
             continue
-        src = hit["_source"].get("x-amz-bedrock-kb-source-uri") or hit["_id"]
-        chunks.append(f"[Source {i}] {src}\n{txt}")
+        ovl = overlap_count(question, txt)
+        conds = 0
+        if score >= MIN_SCORE:   conds += 1
+        if len(txt) >= MIN_CHARS: conds += 1
+        if ovl >= OVERLAP_MIN:   conds += 1
+        if margin_ok:            conds += 1
+        if conds < 2:
+            continue  # 약한 히트 → 버림
 
+        src = hit["_source"].get("x-amz-bedrock-kb-source-uri") or hit["_id"]
+        # 기존 포맷 유지
+        chunks.append(f"[Source {i}] {src}\n{txt}")
         if str(src).startswith("s3://"):
             s3_uri_list.append(src)
-    
+
+    # 5) 유효 히트가 없으면 → 일반 대화 모드
     if not chunks:
-        resp = br.invoke_model(
-            modelId="anthropic.claude-3-7-sonnet-20250219-v1:0",
-            body=json.dumps({
-                "anthropic_version": "bedrock-2023-05-31",
-                "max_tokens": 512,
-                "temperature": 0.7,
-                "top_p": 1,
-                "messages": [
-                    {"role": "user", "content": [{"type": "text", "text": question}]}
-                ]
-            })
-        )
-        output_text = json.loads(resp["body"].read())["content"][0]["text"]
-        return [output_text, []]  # S3 없음
+        return [general_chat(question), []]
+
+        
 
     merged = "\n\n----\n\n".join(chunks)
     payload = {
@@ -115,14 +189,6 @@ def query(question):
             }
         },
     )
-
-
-    def s3uri_to_https(s3uri: str) -> str:
-
-        bucket_and_key = s3uri[len("s3://"):]  # "my-bucket/path/to/file.txt"
-        bucket, key = bucket_and_key.split("/", 1)  # 무조건 "/" 포함된다고 가정
-
-        return f"https://{bucket}.s3.us-west-2.amazonaws.com/{key}"
 
     s3_uri_list = list({s3uri_to_https(uri) for uri in s3_uri_list})    
     return  [resp.get("output", {}).get("text"), s3_uri_list]
