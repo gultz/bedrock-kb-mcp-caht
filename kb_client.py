@@ -48,14 +48,7 @@ def general_chat(question: str) -> str:
             "max_tokens": 512,
             "temperature": 0.7,
             "top_p": 1,
-            "messages": [
-                {
-                    "role": "system",
-                    "content": [{
-                        "type": "text",
-                        "text": "You are a friendly, concise Korean/English chatbot. Keep replies short, natural, and helpful."
-                    }]
-                },
+            "messages": [        
                 {
                     "role": "user",
                     "content": [{"type": "text", "text": question}]
@@ -135,8 +128,6 @@ def query(question):
     # 5) 유효 히트가 없으면 → 일반 대화 모드
     if not chunks:
         return [general_chat(question), []]
-
-        
 
     merged = "\n\n----\n\n".join(chunks)
     payload = {
