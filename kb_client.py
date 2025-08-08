@@ -36,12 +36,16 @@ def query(question):
 
     # 2) 히트들을 하나의 문자열로 합치기 (섹션 구분 추가 권장)
     chunks = []
+    s3_uri_list = []            # ← 미리 빈 리스트 준비
     for i, hit in enumerate(knn["hits"]["hits"], 1):
         txt = (hit["_source"].get(TEXT_FIELD) or "").strip()
         if not txt:
             continue
         src = hit["_source"].get("x-amz-bedrock-kb-source-uri") or hit["_id"]
         chunks.append(f"[Source {i}] {src}\n{txt}")
+
+        if str(src).startswith("s3://"):
+            s3_uri_list.append(src)
 
     merged = "\n\n----\n\n".join(chunks)
     payload = {
@@ -95,4 +99,15 @@ def query(question):
             }
         },
     )
-    return resp.get("output", {}).get("text")
+
+
+    def s3uri_to_https(s3uri: str) -> str:
+
+        bucket_and_key = s3uri[len("s3://"):]  # "my-bucket/path/to/file.txt"
+        bucket, key = bucket_and_key.split("/", 1)  # 무조건 "/" 포함된다고 가정
+
+        return f"https://{bucket}.s3.us-west-2.amazonaws.com/{key}"
+
+    s3_uri_list = list({s3uri_to_https(uri) for uri in s3_uri_list})    
+    return  [resp.get("output", {}).get("text"), s3_uri_list]
+    
