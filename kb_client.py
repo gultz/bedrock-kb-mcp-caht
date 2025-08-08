@@ -36,17 +36,12 @@ def query(question):
 
     # 2) 히트들을 하나의 문자열로 합치기 (섹션 구분 추가 권장)
     chunks = []
-    s3_uri_list = []            # ← 미리 빈 리스트 준비
-
     for i, hit in enumerate(knn["hits"]["hits"], 1):
         txt = (hit["_source"].get(TEXT_FIELD) or "").strip()
         if not txt:
             continue
         src = hit["_source"].get("x-amz-bedrock-kb-source-uri") or hit["_id"]
         chunks.append(f"[Source {i}] {src}\n{txt}")
-
-        if str(src).startswith("s3://"):
-            s3_uri_list.append(src)
 
     merged = "\n\n----\n\n".join(chunks)
     payload = {
@@ -57,6 +52,28 @@ def query(question):
             "identifier": f"knn-top{len(chunks)}"
         }
     }
+
+    PROMPT_CHATBOT_HYBRID = (
+    "역할: 너는 의학/제약 도메인 QA 챗봇이다.\n"
+    "목표: 아래 [검색 결과]를 근거로 답하되, 이해를 돕는 비수치 배경설명을 짧게 제공할 수 있다.\n\n"
+    "절차:\n"
+    "1) 질문이 모호하면 확인 질문 한 개만 제시하고 중단.\n"
+    "2) 명확하면 답변 작성.\n\n"
+    "규칙:\n"
+    "A) 수치·연도·효능·안전성 등 구체적 사실은 [S#] 인용 필수.\n"
+    "B) '배경지식' 섹션에는 정의/맥락 등 일반 설명만(숫자·연구결과 금지).\n"
+    "C) 근거 부족 시 '자료 불충분' + 추가 필요정보 1–2줄.\n"
+    "D) 상충 정보는 양쪽 기술 + 불확실함 명시.\n"
+    "E) 한국어 간결체, 5–9문장.\n\n"
+    "출력 형식:\n"
+    "[답변] 3–6문장. 필요한 문장에 [S#] 인용.\n"
+    "[배경지식] 1–3문장 (인용·수치 금지) — 필요 시만.\n"
+    "[참고 S3]\n"
+    "- [S1] s3://...\n"
+    "- [S2] s3://...\n\n"
+    "[검색 결과]\n$search_results$\n\n[답변]"
+    )
+
 
 
     # 3) RnG 호출 (EXTERNAL_SOURCES는 sources 한 개만!)
@@ -69,11 +86,7 @@ def query(question):
                 "sources": [payload],  # <= 반드시 길이 1
                 "generationConfiguration": {
                     "promptTemplate": {
-                        "textPromptTemplate": (
-                            "의학/제약 논문 맥락에서, 아래 검색결과만 근거로 그리고 답변에 무슨 논문을 참고해서 답을 얻었는지 참고한 논문 이름도 포함시켜라."
-                            "명확하고 간결한 한국어 답변을 작성하라.\n\n"
-                            "[검색 결과]\n$search_results$\n\n[답변]"
-                        )
+                        "textPromptTemplate": PROMPT_CHATBOT_HYBRID
                     },
                     "inferenceConfig": {
                         "textInferenceConfig": {"temperature": 0, "topP": 1, "maxTokens": 1024}
@@ -82,20 +95,4 @@ def query(question):
             }
         },
     )
-    
-    def s3uri_to_https(s3uri: str) -> str:
-        
-        # "s3://bucket/key" → "bucket", "key"
-        bucket_and_key = s3uri[len("s3://"):]  # "my-bucket/path/to/file.txt"
-        bucket, key = bucket_and_key.split("/", 1)  # 무조건 "/" 포함된다고 가정
-
-        return f"https://{bucket}.s3.us-west-2.amazonaws.com/{key}"
-
-        
-       # return [resp.get("output", {}).get("text"),s3_uri_list]
-    
-    print(s3_uri_list)
-    
-    s3_uri_list = list({s3uri_to_https(uri) for uri in s3_uri_list})    
-
-    return  [resp.get("output", {}).get("text"), s3_uri_list]
+    return resp.get("output", {}).get("text")
