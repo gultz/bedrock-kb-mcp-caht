@@ -94,50 +94,22 @@ def query(question):
     hits = knn["hits"]["hits"]
 
 
-    # 2) 잡담이면 즉시 일반 모드
-    if is_chitchat(question):
-        return [general_chat(question), []]
-
-    # 3) 유효성 기준값 (필요시 조정)
-    MIN_SCORE   = 0.25     # 시작점
-    MIN_CHARS   = 160      # 시작점
-    MARGIN_MIN  = 1.05     # top1/top2 마진
-    OVERLAP_MIN = 3        # 쿼리-스니펫 공통 토큰
-
-    # top1/top2 마진 계산 (없으면 1.0로 처리)
-    scores = sorted([h.get("_score", 0.0) for h in hits], reverse=True)
-    top1 = scores[0] if scores else 0.0
-    top2 = scores[1] if len(scores) > 1 else 0.0
-    margin_ok = (top2 == 0.0) or ((top1 / (top2 + 1e-6)) >= MARGIN_MIN)
 
     # 4) 히트 필터링 (조건 4개 중 2개 이상 만족 시 채택)
     chunks = []
     s3_uri_list = []
 
     for i, hit in enumerate(hits, 1):
-        score = hit.get("_score", 0.0)
         txt = (hit["_source"].get(TEXT_FIELD) or "").strip()
         if not txt:
             continue
-        ovl = overlap_count(question, txt)
-        conds = 0
-        if score >= MIN_SCORE:   conds += 1
-        if len(txt) >= MIN_CHARS: conds += 1
-        if ovl >= OVERLAP_MIN:   conds += 1
-        if margin_ok:            conds += 1
-        if conds < 2:
-            continue  # 약한 히트 → 버림
-
         src = hit["_source"].get("x-amz-bedrock-kb-source-uri") or hit["_id"]
         # 기존 포맷 유지
         chunks.append(f"[Source {i}] {src}\n{txt}")
         if str(src).startswith("s3://"):
             s3_uri_list.append(src)
 
-    # 5) 유효 히트가 없으면 → 일반 대화 모드
-    if not chunks:
-        return [general_chat(question), []]
-
+   
     merged = "\n\n----\n\n".join(chunks)
     payload = {
         "sourceType": "BYTE_CONTENT",
