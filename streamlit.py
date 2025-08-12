@@ -2,14 +2,14 @@ import streamlit as st
 import logging
 import sys
 
-logging.basicConfig(
-    level=logging.INFO,  # Default to INFO level
-    format='%(filename)s:%(lineno)d | %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stderr)
-    ]
-)
-logger = logging.getLogger("streamlit")
+# logging.basicConfig(
+#     level=logging.INFO,  # Default to INFO level
+#     format='%(filename)s:%(lineno)d | %(message)s',
+#     handlers=[
+#         logging.StreamHandler(sys.stderr)
+#     ]
+# )
+# logger = logging.getLogger("streamlit")
 
 st.set_page_config(
     page_title="JW Pharmaceutical AI PoC",
