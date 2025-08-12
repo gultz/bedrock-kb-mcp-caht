@@ -4,13 +4,13 @@ import logging
 import sys
 import asyncio
 
-logger = logging.getLogger("CHEMBL_MCP")  # 예: "MCP" 또는 "KB"
-if not logger.hasHandlers():
-    handler = logging.StreamHandler(sys.stderr)
-    formatter = logging.Formatter('%(filename)s:%(lineno)d | %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-logger.setLevel(logging.INFO)
+# logger = logging.getLogger("CHEMBL_MCP")  # 예: "MCP" 또는 "KB"
+# if not logger.hasHandlers():
+#     handler = logging.StreamHandler(sys.stderr)
+#     formatter = logging.Formatter('%(filename)s:%(lineno)d | %(message)s')
+#     handler.setFormatter(formatter)
+#     logger.addHandler(handler)
+# logger.setLevel(logging.INFO)
 
 st.title("CHEMBL_MCP Page")
 st.write("This is the CHEMBL_MCP page content.")
