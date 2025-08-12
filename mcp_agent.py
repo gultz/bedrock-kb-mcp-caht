@@ -20,6 +20,22 @@ from strands.agent.conversation_manager import SlidingWindowConversationManager
 # )
 # logger = logging.getLogger("chat")
 
+def get_session_logger():
+    ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    logger = logging.getLogger(f"session_{ts}")
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
+    if not logger.handlers:  # 중복 핸들러 방지
+        handler = logging.StreamHandler(sys.stderr)
+        handler.setFormatter(logging.Formatter(
+            "%(asctime)s %(levelname)s [%(name)s] %(message)s"
+        ))
+        logger.addHandler(handler)
+    return logger
+
+logger = get_session_logger()
+logger.info("세션 시작")
+
 
 model = BedrockModel(
     boto_client_config=Config(
