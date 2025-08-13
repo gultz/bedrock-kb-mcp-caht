@@ -3,7 +3,7 @@ import logging
 import sys
 import kb_client
 import os
-from ..logging_config import setup_logging
+from logging_config import setup_logging
 
 # logger = logging.getLogger("KB")  # 예: "MCP" 또는 "KB"
 # if not logger.hasHandlers():
@@ -15,7 +15,6 @@ from ..logging_config import setup_logging
 
 
 logger = setup_logging().getChild("kb_page")
-
 
 
 st.title("KB Page")

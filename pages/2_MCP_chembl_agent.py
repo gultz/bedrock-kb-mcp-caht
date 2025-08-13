@@ -2,7 +2,7 @@ import streamlit as st
 import mcp_agent
 import sys
 import asyncio
-from ..logging_config import setup_logging
+from logging_config import setup_logging
 
 logger = setup_logging().getChild("chembl_mcp_page")  # 페이지명
 

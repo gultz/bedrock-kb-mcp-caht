@@ -2,7 +2,7 @@ import streamlit as st
 import mcp_agent
 import logging
 import sys
-from ..logging_config import setup_logging
+from logging_config import setup_logging
 
 
 # logger = logging.getLogger("string_db_MCP")  # 예: "MCP" 또는 "KB"
