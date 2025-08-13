@@ -70,27 +70,69 @@ conversation_manager = SlidingWindowConversationManager(
 # ))
 
 
-chembl_mcp_client = MCPClient(lambda: stdio_client(
-    StdioServerParameters(command="docker", args=["run", "-i", "chembl-mcp-server"])
-))
+# chembl_mcp_client = MCPClient(lambda: stdio_client(
+#     StdioServerParameters(command="docker", args=["run", "-i", "chembl-mcp-server"])
+# ))
 
-uniprot_mcp_client = MCPClient(lambda: stdio_client(
-    StdioServerParameters(command="docker", args=["run", "-i", "uniprot-mcp-server"])
-))
 
-OpenTargets_mcp_client = MCPClient(lambda: stdio_client(
+def make_chembl_client():
+    return MCPClient(lambda: stdio_client(
+        StdioServerParameters(
+            command="docker",
+            args=["run", "-i", "chembl-mcp-server"]
+        )
+    ))
+
+# uniprot_mcp_client = MCPClient(lambda: stdio_client(
+#     StdioServerParameters(command="docker", args=["run", "-i", "uniprot-mcp-server"])
+# ))
+
+
+def make_uniprot_mcp_client():
+    return MCPClient(lambda: stdio_client(
+        StdioServerParameters(
+            command="docker",
+            args=["run", "-i", "uniprot-mcp-server"]
+        )
+    ))
+
+# OpenTargets_mcp_client = MCPClient(lambda: stdio_client(
+#      StdioServerParameters(command="node", args=["mcp-servers/OpenTargets-MCP-Server/build/index.js"])
+# ))
+
+def make_OpenTargets_mcp_client():
+    return MCPClient(lambda: stdio_client(
      StdioServerParameters(command="node", args=["mcp-servers/OpenTargets-MCP-Server/build/index.js"])
 ))
 
-Reactome_mcp_client = MCPClient(lambda: stdio_client(
+
+# Reactome_mcp_client = MCPClient(lambda: stdio_client(
+#      StdioServerParameters(command="node", args=["mcp-servers/Reactome-MCP-Server/build/index.js"])
+# ))
+
+
+def make_Reactome_mcp_client():
+    return MCPClient(lambda: stdio_client(
      StdioServerParameters(command="node", args=["mcp-servers/Reactome-MCP-Server/build/index.js"])
 ))
 
-string_db_mcp_client = MCPClient(lambda: stdio_client(
+
+# string_db_mcp_client = MCPClient(lambda: stdio_client(
+#      StdioServerParameters(command="node", args=["mcp-servers/STRING-db-MCP-Server/build/index.js"])
+# ))
+
+def make_string_db_mcp_client():
+    return MCPClient(lambda: stdio_client(
      StdioServerParameters(command="node", args=["mcp-servers/STRING-db-MCP-Server/build/index.js"])
 ))
 
+
 GeneOntology_mcp_client = MCPClient(lambda: stdio_client(
+     StdioServerParameters(command="node", args=["mcp-servers/GeneOntology-MCP-Server/build/index.js"])
+))
+
+def make_GeneOntology_mcp_client():
+    return MCPClient(lambda: stdio_client(
      StdioServerParameters(command="node", args=["mcp-servers/GeneOntology-MCP-Server/build/index.js"])
 ))
 
@@ -98,13 +140,31 @@ PubChem_mcp_client = MCPClient(lambda: stdio_client(
      StdioServerParameters(command="node", args=["mcp-servers/PubChem-MCP-Server/build/index.js"])
 ))
 
+def make_PubChem_mcp_client():
+    return  MCPClient(lambda: stdio_client(
+     StdioServerParameters(command="node", args=["mcp-servers/PubChem-MCP-Server/build/index.js"])
+))
+
+
 PDB_mcp_client = MCPClient(lambda: stdio_client(
      StdioServerParameters(command="node", args=["mcp-servers/PDB-MCP-Server/build/index.js"])
 ))
 
+def make_PDB_mcp_client():
+    return  MCPClient(lambda: stdio_client(
+     StdioServerParameters(command="node", args=["mcp-servers/PDB-MCP-Server/build/index.js"])
+))
+
+
 ProteinAtlas_mcp_client = MCPClient(lambda: stdio_client(
      StdioServerParameters(command="node", args=["mcp-servers/ProteinAtlas-MCP-Server/build/index.js"])
 ))
+
+def make_ProteinAtlas_mcp_client():
+    returnMCPClient(lambda: stdio_client(
+     StdioServerParameters(command="node", args=["mcp-servers/ProteinAtlas-MCP-Server/build/index.js"])
+))
+
 
 
 # chembl_agent_tools = chembl_mcp_client.list_tools_sync()
@@ -117,13 +177,14 @@ ProteinAtlas_mcp_client = MCPClient(lambda: stdio_client(
 # PDB_agent_tools = PDB_mcp_client.list_tools_sync()
 
 
+
 def run_chembl_agent(query: str) -> str:
     """
     chembl_agent를 실행하고 결과를 반환합니다.
     """
    
     try:
-        with chembl_mcp_client as client:
+        with make_chembl_client() as client:
             tools = client.list_tools_sync()
             system_prompt = """
         You are a specialized ChEMBL research agent. Your role is to:
@@ -151,7 +212,7 @@ def run_uniprot_agent(query: str) -> str:
     """
 
     try:
-        with uniprot_mcp_client as client:
+        with make_uniprot_mcp_client() as client:
             tools = client.list_tools_sync()
             system_prompt = """
             You are a specialized UniProt research agent. Your role is to:
@@ -184,7 +245,7 @@ def run_OpenTargets_agent(query: str) -> str:
     chembl_agent를 실행하고 결과를 반환합니다.
     """
     try:
-        with OpenTargets_mcp_client as client:
+        with make_OpenTargets_mcp_client() as client:
             tools = client.list_tools_sync()
             system_prompt = """
                 You are an advanced biomedical research assistant specialized in gene, disease, and drug association analysis using Open Targets data.
@@ -227,7 +288,7 @@ def run_Reactome_agent(query: str) -> str:
     chembl_agent를 실행하고 결과를 반환합니다.
     """
     try:
-        with Reactome_mcp_client as client:
+        with make_Reactome_mcp_client() as client:
             tools = client.list_tools_sync()
             system_prompt = """
                 You are a specialized systems biology research assistant designed to help users explore biological pathways, molecular interactions, and systems biology data using the Reactome knowledgebase.
@@ -268,7 +329,7 @@ def run_string_db_agent(query: str) -> str:
     chembl_agent를 실행하고 결과를 반환합니다.
     """
     try:
-        with string_db_mcp_client as client:
+        with make_string_db_mcp_client() as client:
             tools = client.list_tools_sync()
             system_prompt = """
 You are a specialized protein interaction and comparative genomics research assistant designed to help users explore molecular networks using the STRING database.
@@ -314,7 +375,7 @@ def run_GeneOntology_agent(query: str) -> str:
     chembl_agent를 실행하고 결과를 반환합니다.
     """
     try:
-        with GeneOntology_mcp_client as client:
+        with make_GeneOntology_mcp_client() as client:
             tools = client.list_tools_sync()
             system_prompt = """
 You are a specialized Gene Ontology (GO) research assistant operating through a Model Context Protocol (MCP) interface. Your responsibilities include:
@@ -348,7 +409,7 @@ def run_PubChem_agent(query: str) -> str:
     chembl_agent를 실행하고 결과를 반환합니다.
     """
     try:
-        with PubChem_mcp_client as client:
+        with make_PubChem_mcp_client() as client:
             tools = client.list_tools_sync()
             system_prompt = """
 You are a PubChem research assistant powered by a Model Context Protocol (MCP) server. Your job is to understand natural language queries and extract structured information related to chemical compounds, their properties, bioassays, safety data, and external references. You interface directly with PubChem's API via MCP tools.
@@ -402,7 +463,7 @@ def run_PDB_agent(query: str) -> str:
     chembl_agent를 실행하고 결과를 반환합니다.
     """
     try:
-        with PDB_mcp_client as client:
+        with make_PDB_mcp_client() as client:
             tools = client.list_tools_sync()
             system_prompt = """
 You are a scientific assistant powered by the Protein Data Bank (PDB) Model Context Protocol (MCP) server. Your role is to help users explore and analyze 3D biomolecular structures through PDB's APIs using structured tools and resources.
@@ -454,7 +515,7 @@ def run_ProteinAtlas_agent(query: str) -> str:
     chembl_agent를 실행하고 결과를 반환합니다.
     """
     try:
-        with ProteinAtlas_mcp_client as client:
+        with make_ProteinAtlas_mcp_client() as client:
             tools = client.list_tools_sync()
             system_prompt = """
 You are a research-grade assistant powered by the Human Protein Atlas (HPA) Model Context Protocol (MCP) server. Your purpose is to provide structured access to protein expression, localization, pathology, and antibody data through the Human Protein Atlas.
