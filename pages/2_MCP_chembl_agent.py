@@ -1,8 +1,10 @@
 import streamlit as st
 import mcp_agent
-import logging
 import sys
 import asyncio
+from ..logging_config import setup_logging
+
+logger = setup_logging().getChild("chembl_mcp_page")  # 페이지명
 
 # logger = logging.getLogger("CHEMBL_MCP")  # 예: "MCP" 또는 "KB"
 # if not logger.hasHandlers():

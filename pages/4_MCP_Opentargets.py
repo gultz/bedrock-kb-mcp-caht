@@ -2,14 +2,18 @@ import streamlit as st
 import mcp_agent
 import logging
 import sys
+from ..logging_config import setup_logging
 
-logger = logging.getLogger("OpenTargets_MCP")  # 예: "MCP" 또는 "KB"
-if not logger.hasHandlers():
-    handler = logging.StreamHandler(sys.stderr)
-    formatter = logging.Formatter('%(filename)s:%(lineno)d | %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-logger.setLevel(logging.INFO)
+# logger = logging.getLogger("OpenTargets_MCP")  # 예: "MCP" 또는 "KB"
+# if not logger.hasHandlers():
+#     handler = logging.StreamHandler(sys.stderr)
+#     formatter = logging.Formatter('%(filename)s:%(lineno)d | %(message)s')
+#     handler.setFormatter(formatter)
+#     logger.addHandler(handler)
+# logger.setLevel(logging.INFO)
+
+logger = setup_logging().getChild("opentargets_mcp_page")
+
 
 st.title("OpenTargets_MCP Page")
 st.write("This is the OpenTargets_MCP page content.")

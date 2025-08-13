@@ -3,14 +3,20 @@ import logging
 import sys
 import kb_client
 import os
+from ..logging_config import setup_logging
 
-logger = logging.getLogger("KB")  # 예: "MCP" 또는 "KB"
-if not logger.hasHandlers():
-    handler = logging.StreamHandler(sys.stderr)
-    formatter = logging.Formatter('%(filename)s:%(lineno)d | %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-logger.setLevel(logging.INFO)
+# logger = logging.getLogger("KB")  # 예: "MCP" 또는 "KB"
+# if not logger.hasHandlers():
+#     handler = logging.StreamHandler(sys.stderr)
+#     formatter = logging.Formatter('%(filename)s:%(lineno)d | %(message)s')
+#     handler.setFormatter(formatter)
+#     logger.addHandler(handler)
+# logger.setLevel(logging.INFO)
+
+
+logger = setup_logging().getChild("kb_page")
+
+
 
 st.title("KB Page")
 st.write("This is the KB page content.")

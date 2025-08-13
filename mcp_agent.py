@@ -10,6 +10,7 @@ from botocore.config import Config
 from strands.tools.mcp import MCPClient
 from mcp import stdio_client, StdioServerParameters
 from strands.agent.conversation_manager import SlidingWindowConversationManager
+from logging_config import setup_logging
 
 # logging.basicConfig(
 #     level=logging.INFO,  # Defaulx t to INFO level
@@ -17,8 +18,11 @@ from strands.agent.conversation_manager import SlidingWindowConversationManager
 #     handlers=[
 #         logging.StreamHandler(sys.stderr)
 #     ]
-# )
+# 
 # logger = logging.getLogger("chat")
+
+
+logger = setup_logging().getChild("mcp_agent")
 
 def get_session_logger():
     ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
