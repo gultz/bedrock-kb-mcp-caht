@@ -161,7 +161,7 @@ ProteinAtlas_mcp_client = MCPClient(lambda: stdio_client(
 ))
 
 def make_ProteinAtlas_mcp_client():
-    returnMCPClient(lambda: stdio_client(
+    return MCPClient(lambda: stdio_client(
      StdioServerParameters(command="node", args=["mcp-servers/ProteinAtlas-MCP-Server/build/index.js"])
 ))
 

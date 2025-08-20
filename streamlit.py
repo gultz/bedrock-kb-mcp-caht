@@ -11,6 +11,9 @@ import sys
 # )
 # logger = logging.getLogger("streamlit")
 
+root_logger = setup_logging()
+root_logger.info("앱 시작")
+
 st.set_page_config(
     page_title="JW Pharmaceutical AI PoC",
     layout="wide",
