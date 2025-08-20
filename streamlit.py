@@ -1,6 +1,8 @@
 import streamlit as st
 import logging
 import sys
+from logging_config import setup_logging
+
 
 # logging.basicConfig(
 #     level=logging.INFO,  # Default to INFO level
